@@ -1,0 +1,13 @@
+patient_id,sex,cigarettes_per_day,smoking_status,drug,dose,route,interval
+ok01,male,8,,clozapina,450mg/d,,
+ok02,female,0,,Clozopine,325mg,,
+ok03,male,0,,Trevicta inyectable,350,,
+ok04,male,20,,Aripiprazol,400 mg/mes,,
+ok05,female,,no,Quetiapina,300mg/d,,
+ok06,male,0,,Zucloplenthixol,40mg,oral,
+bad01,male,0,,Aripiprazole,400,,
+bad02,male,0,,Venflaxine,150,oral,
+bad03,,0,,Clozapine,400,,
+bad04,male,0,,Paliperidone palmitate depot,150,,
+bad05,male,,,Clozapine,300,,
+bad06,male,0,,Cariprazine,twice daily,oral,

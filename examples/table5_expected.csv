@@ -1,0 +1,17 @@
+patient_id,AP_Load2026_rounded,regimen
+case01,141,Olanzapine 20 mg (M/NS)
+case02,80,Risperidone 6 mg
+case03,110,Quetiapine 600 mg
+case04,133,Amisulpride 800 mg
+case05,71,Aripiprazole 15 mg
+case06,83,Haloperidol 10 mg
+case07,151,Clozapine 400 mg (F/NS)
+case08,124,Clozapine 400 mg (M/NS)
+case09,93,Clozapine 400 mg (F/S)
+case10,76,Clozapine 400 mg (M/S)
+case11,143,Clozapine 400 + amisulpride 400 mg (M/S)
+case12,147,Clozapine 400 + aripiprazole 15 mg (M/S)
+case13,130,Clozapine 400 + risperidone 4 mg (M/S)
+case14,110,Clozapine 400 + sulpiride 400 mg (M/S)
+case15,176,Clozapine 400 + aripiprazole LAI 400 mg/month (M/S)
+case16,143,Clozapine 400 + paliperidone LAI 100 mg/month (M/S)

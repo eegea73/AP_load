@@ -1,0 +1,15 @@
+patient_id,sex,cigarettes_per_day,smoking_status,drug,dose,route,interval
+t01,male,0,,Chlorpromazine,"1,000 mg",oral,
+t02,male,0,,Quetiapine,300 mg bd,oral,
+t03,male,0,,Olanzapine,2 x 100 mg,oral,
+t04,male,0,,Haloperidol,500 microgram,oral,
+t05,male,0,,Sulpiride,1 g,oral,
+t06,male,0,,Clozapine,-100,oral,
+t07,male,0,,Risperidone,"10mg mane, 5mg nocte",oral,
+t08,male,0,,Risperidone Consta,50,,
+t09,male,0,,Haloperidol decanoate,150,,monthly
+t10,male,0,,Aripiprazole,400,LAI,4-weekly
+t11,male,0,,Quetiapine,30 ml,oral,
+t12,male,20,,Clozapine,400 mg,oral,
+t13,male,0,,Paliperidone,350,LAI,90 days
+t14,male,0,,Amisulpride,0,oral,
