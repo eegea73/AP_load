@@ -1,0 +1,27 @@
+generic,bnf_max_mg_day,who_ddd_mg_day,published_reference_mg_day,basis,source
+amisulpride,1200,400,600,1.5 x DDD (cap),BNF
+aripiprazole,30,15,21.2,geometric mean,BNF
+asenapine,20,20,20,geometric mean (= label max),FDA / SmPC
+blonanserin,24,,24,label max (no WHO DDD),PMDA (Japan)
+brexpiprazole,4,,4,label max (no WHO DDD),FDA
+cariprazine,6,,6,label max (no WHO DDD),FDA / SmPC
+chlorpromazine,1000,300,450,1.5 x DDD (cap),BNF
+clozapine,900,300,,individualised target (see anchors),BNF
+flupentixol,18,6,9.0,1.5 x DDD (cap),BNF
+haloperidol,20,8,12,1.5 x DDD (cap),BNF
+iloperidone,24,,24,label max (no WHO DDD),FDA
+lumateperone,42,,42,label max (no WHO DDD),FDA
+lurasidone,148,60,90,1.5 x DDD (cap),BNF
+olanzapine,20,10,14.1,geometric mean,BNF
+paliperidone,12,6,8.5,geometric mean,BNF
+pimozide,20,4,6.0,1.5 x DDD (cap),BNF
+quetiapine,750,400,547.7,geometric mean,BNF
+risperidone,16,5,7.5,1.5 x DDD (cap),BNF
+sulpiride,2400,800,1200,1.5 x DDD (cap),BNF
+trifluoperazine,20,20,20,geometric mean (= label max),SmPC
+xanomeline-trospium,250,,250,label max (no WHO DDD); xanomeline component,FDA
+ziprasidone,160,80,113.1,geometric mean,FDA / SmPC
+zuclopenthixol,150,30,45,1.5 x DDD (cap),BNF
+fluphenazine,,10,15,1.5 x DDD (oral form discontinued in the UK),WHO
+levomepromazine,,300,450,1.5 x DDD (no current UK max),WHO
+penfluridol,,6,9,1.5 x DDD (weekly oral; daily equivalent),WHO

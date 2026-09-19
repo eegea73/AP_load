@@ -1,0 +1,91 @@
+kind,pattern,value,interval,language,note
+molecule,cloz,clozapine,,en/es,clozapine / clozapina / clozaril
+molecule,leponex,clozapine,,es,brand (Spain)
+molecule,denzapine,clozapine,,en,brand (UK)
+molecule,zaponex,clozapine,,en,brand (UK)
+molecule,olanzap,olanzapine,,en/es,olanzapine / olanzapina
+molecule,zyprexa,olanzapine,,en/es,brand
+molecule,zalasta,olanzapine,,es,brand (Spain)
+molecule,zypadhera,olanzapine,,en/es,brand; long-acting injectable
+molecule,risper,risperidone,,en/es,risperidone / risperidona / risperdal
+molecule,consta,risperidone,2-weekly,en/es,brand; long-acting injectable
+molecule,uzedy,risperidone,,en,brand; long-acting injectable
+molecule,perseris,risperidone,monthly,en,brand; long-acting injectable
+molecule,quetiap,quetiapine,,en/es,quetiapine / quetiapina
+molecule,seroquel,quetiapine,,en/es,brand
+molecule,paliperid,paliperidone,,en/es,paliperidone / paliperidona
+molecule,invega,paliperidone,,en/es,brand; oral
+molecule,xeplion,paliperidone,monthly,en/es,brand; long-acting injectable
+molecule,trevicta,paliperidone,3-monthly,en/es,brand; long-acting injectable
+molecule,byannli,paliperidone,6-monthly,en/es,brand; long-acting injectable
+molecule,arip,aripiprazole,,en/es,aripiprazole / aripiprazol
+molecule,abilify,aripiprazole,,en/es,brand
+molecule,maintena,aripiprazole,monthly,en/es,brand; long-acting injectable
+molecule,aristada,aripiprazole,,en,brand; long-acting injectable (interval varies)
+molecule,amisulp,amisulpride,,en/es,amisulpride / amisulprida
+molecule,solian,amisulpride,,en/es,brand
+molecule,sulpir,sulpiride,,en/es,sulpiride / sulpirida
+molecule,sulpor,sulpiride,,en,brand (UK)
+molecule,dolmatil,sulpiride,,en,brand (UK)
+molecule,dogmatil,sulpiride,,es,brand (Spain)
+molecule,digton,sulpiride,,es,brand (Spain)
+molecule,guastil,sulpiride,,es,brand (Spain)
+molecule,tepazepan,sulpiride,,es,brand (Spain)
+molecule,haloperid,haloperidol,,en/es,haloperidol
+molecule,haldol,haloperidol,,en/es,brand
+molecule,serenace,haloperidol,,en,brand (UK)
+molecule,chlorproma,chlorpromazine,,en,chlorpromazine
+molecule,clorproma,chlorpromazine,,es,clorpromazina
+molecule,largactil,chlorpromazine,,en/es,brand
+molecule,levomeproma,levomepromazine,,en/es,levomepromazine / levomepromazina
+molecule,sinogan,levomepromazine,,es,brand (Spain)
+molecule,nozinan,levomepromazine,,en,brand (UK)
+molecule,fluphenaz,fluphenazine,,en,fluphenazine
+molecule,flufenaz,fluphenazine,,es,flufenazina
+molecule,modecate,fluphenazine,2-weekly,en,brand; long-acting injectable
+molecule,flupent,flupentixol,,en/es,flupentixol
+molecule,flupenth,flupentixol,,en,flupenthixol (UK spelling)
+molecule,depixol,flupentixol,,en,brand (UK)
+molecule,fluanxol,flupentixol,,en/es,brand
+molecule,zuclopent,zuclopenthixol,,en/es,zuclopenthixol / zuclopentixol
+molecule,zucloplent,zuclopenthixol,,en,common misspelling
+molecule,clopixol,zuclopenthixol,,en/es,brand
+molecule,cisordinol,zuclopenthixol,,es,brand (Spain)
+molecule,trifluoperaz,trifluoperazine,,en/es,trifluoperazine / trifluoperazina
+molecule,stelazine,trifluoperazine,,en,brand (UK)
+molecule,eskazine,trifluoperazine,,es,brand (Spain)
+molecule,pimozid,pimozide,,en/es,pimozide / pimozida
+molecule,orap,pimozide,,en/es,brand
+molecule,penflurid,penfluridol,,en/es,penfluridol (weekly oral)
+molecule,semap,penfluridol,,es,brand (Spain)
+molecule,lurasid,lurasidone,,en/es,lurasidone / lurasidona
+molecule,latuda,lurasidone,,en/es,brand
+molecule,ziprasid,ziprasidone,,en/es,ziprasidone / ziprasidona
+molecule,zeldox,ziprasidone,,es,brand (Spain)
+molecule,geodon,ziprasidone,,en,brand (US)
+molecule,asenap,asenapine,,en/es,asenapine / asenapina
+molecule,sycrest,asenapine,,en/es,brand
+molecule,saphris,asenapine,,en,brand (US)
+molecule,cariprazin,cariprazine,,en/es,cariprazine / cariprazina
+molecule,reagila,cariprazine,,en/es,brand
+molecule,vraylar,cariprazine,,en,brand (US)
+molecule,brexpipraz,brexpiprazole,,en/es,brexpiprazole
+molecule,rexulti,brexpiprazole,,en,brand
+molecule,lumatepero,lumateperone,,en/es,lumateperone
+molecule,caplyta,lumateperone,,en,brand (US)
+molecule,iloperid,iloperidone,,en/es,iloperidone
+molecule,fanapt,iloperidone,,en,brand (US)
+molecule,blonanser,blonanserin,,en/es,blonanserin
+molecule,lonasen,blonanserin,,en,brand (Japan)
+molecule,xanomelin,xanomeline-trospium,,en/es,xanomeline-trospium
+molecule,cobenfy,xanomeline-trospium,,en,brand (US)
+form,(?:3[ -]?month|trimestral|3[ -]?mes),LAI,3-monthly,en/es,three-monthly depot
+form,(?:6[ -]?month|semestral|6[ -]?mes),LAI,6-monthly,en/es,six-monthly depot
+form,(?:2[ -]?month|bimensual|2[ -]?mes),LAI,2-monthly,en/es,two-monthly depot
+form,(?:4[ -]?week|4[ -]?semana),LAI,4-weekly,en/es,four-weekly depot
+form,(?:2[ -]?week|fortnight|quincenal|2[ -]?semana),LAI,2-weekly,en/es,two-weekly depot
+form,(?:monthly|mensual|/ ?m\b|per month|\bmes\b|month),LAI,monthly,en/es,monthly depot
+form,(?:weekly|semanal),LAI,weekly,en/es,weekly depot
+form,(?:decanoate|decanoato|palmitate|palmitato|depot|dep[oô]t),LAI,,en/es,depot formulation, interval not stated
+form,(?:inyectable|inyec|injection|\binj\b|\bim\b|\bi\.m\.|\blai\b),LAI,,en/es,injectable, interval not stated
+form,(?:/ ?d\b|daily|diario|/ ?dia|/ ?d[ií]a|per day|\bod\b|\bnocte\b|\bmane\b),oral,,en/es,explicit daily oral dose

@@ -1,0 +1,13 @@
+generic,interval,max_per_interval_mg,who_depot_ddd_mg_day,source
+aripiprazole,monthly,400,13.3,BNF; WHO
+aripiprazole,2-monthly,960,13.3,BNF; WHO
+paliperidone,monthly,150,2.5,BNF; WHO
+paliperidone,3-monthly,525,2.5,BNF; WHO
+paliperidone,6-monthly,1000,,SmPC (Byannli)
+risperidone,2-weekly,50,2.7,BNF; WHO
+olanzapine,2-weekly,300,,SmPC
+olanzapine,4-weekly,405,,SmPC
+haloperidol,4-weekly,300,3.3,BNF; WHO
+flupentixol,weekly,400,,BNF
+zuclopenthixol,weekly,600,,BNF
+fluphenazine,2-weekly,100,,BNF / SmPC

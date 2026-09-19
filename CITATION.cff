@@ -1,0 +1,60 @@
+cff-version: 1.2.0
+message: "If you use AP_Load2026, please cite both the software and the paper."
+title: "AP_Load2026: reference implementations of the Antipsychotic Dose Load"
+abstract: >-
+  Reference implementations, in Python, R, SPSS and JavaScript, of the
+  Antipsychotic Dose Load (AP_Load2026): a normalised prescribed-dose index in
+  which each antipsychotic is scored as its prescribed daily dose expressed as a
+  percentage of a documented reference dose, summed across agents without an
+  upper cap. Includes the complete dated reference tables.
+type: software
+version: "1.0.0"
+date-released: "2026-09-18"
+license: MIT
+repository-code: "https://github.com/[account to be inserted]/APLoad2026"
+# doi: 10.5281/zenodo.[to be inserted on release]
+keywords:
+  - schizophrenia
+  - antipsychotics
+  - clozapine
+  - defined daily dose
+  - dose equivalence
+authors:
+  - family-names: "Fernandez-Egea"
+    given-names: "Emilio"
+    orcid: "https://orcid.org/0000-0003-4128-8955"
+    affiliation: "Department of Psychiatry, University of Cambridge, and Cambridgeshire and Peterborough NHS Foundation Trust, UK"
+  - family-names: "Krishnadas"
+    given-names: "Rajeev"
+    affiliation: "Department of Psychiatry, University of Cambridge, and Cambridgeshire and Peterborough NHS Foundation Trust, UK"
+  - family-names: "Jenkins"
+    given-names: "Christopher"
+    affiliation: "Cambridgeshire and Peterborough NHS Foundation Trust, UK"
+  - family-names: "Patel"
+    given-names: "Rashmi"
+    affiliation: "Department of Psychiatry, University of Cambridge, and Cambridgeshire and Peterborough NHS Foundation Trust, UK"
+  - family-names: "Cardinal"
+    given-names: "Rudolf N."
+    affiliation: "Department of Psychiatry, University of Cambridge, and Cambridgeshire and Peterborough NHS Foundation Trust, UK"
+  - family-names: "Wolpe"
+    given-names: "Noham"
+    affiliation: "Department of Psychiatry, University of Cambridge, UK, and Tel Aviv University, Israel"
+preferred-citation:
+  type: article
+  title: "The Antipsychotic Dose Load (AP_Load2026): a normalised prescribed-dose index for schizophrenia research"
+  year: 2026
+  authors:
+    - family-names: "Fernandez-Egea"
+      given-names: "Emilio"
+      orcid: "https://orcid.org/0000-0003-4128-8955"
+    - family-names: "Krishnadas"
+      given-names: "Rajeev"
+    - family-names: "Jenkins"
+      given-names: "Christopher"
+    - family-names: "Patel"
+      given-names: "Rashmi"
+    - family-names: "Cardinal"
+      given-names: "Rudolf N."
+    - family-names: "Wolpe"
+      given-names: "Noham"
+  # journal, volume, pages and doi to be completed on acceptance

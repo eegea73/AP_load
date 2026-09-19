@@ -1,0 +1,9 @@
+scheme,sex,smoking,target_mg_day,source
+rostami,female,non-smoker,265,Rostami-Hodjegan 2004 (manuscript Table 1)
+rostami,male,non-smoker,323,Rostami-Hodjegan 2004 (manuscript Table 1)
+rostami,female,smoker,431,Rostami-Hodjegan 2004 (manuscript Table 1)
+rostami,male,smoker,525,Rostami-Hodjegan 2004 (manuscript Table 1)
+reeves,female,non-smoker,226,Reeves 2024 (manuscript Table 1)
+reeves,male,non-smoker,275,Reeves 2024 (manuscript Table 1)
+reeves,female,smoker,293,Reeves 2024 (manuscript Table 1)
+reeves,male,smoker,358,Reeves 2024 (manuscript Table 1)
