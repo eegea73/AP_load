@@ -12,7 +12,13 @@ Other oral agents are referenced to the geometric mean of the licensed maximum a
 WHO Defined Daily Dose, capped at 1.5 × DDD. Long-acting injectables are referenced to
 the licensed formulation maximum for the same dosing interval.
 
-Reference tables are dated: `2026-09`.
+Reference tables are dated: `2026-11` (see `CHANGELOG.md` for what changed from `2026-09`).
+
+**Browser calculator:** <https://www.schizophrenias.group/ap_load> scores a single regimen
+in the browser, using the same reference tables as the code here.
+
+**For research use only.** AP_Load2026 normalises prescribed dose for research analyses. It
+is not a prescribing tool or a clinical decision aid.
 
 ## Quick start
 
@@ -131,6 +137,10 @@ install and no data leaving the browser:
                                                       block (all styles scoped, so it
                                                       cannot disturb the rest of a site)
 
+Doses are oral mg/day, or mg per injection interval for depots. Intravenous and
+short-acting intramuscular doses are not covered, and the dose boxes say "Oral dose" or
+"Depot dose" so that one cannot be typed in for the other.
+
 The DDD/day column converts a depot dose over the calendar month the WHO derives depot
 DDDs on (30, 60, 90, 180 days), which is why it can differ slightly from a 28-day
 convention. The AP_Load2026 score itself never uses those numbers.
@@ -150,6 +160,9 @@ has fallen behind, so the drift cannot reach an analysis unnoticed.
 
 ## Verifying the installation
 
+Clone the whole repository: `web/apload.js` is both the calculator and the template the
+web generator writes into, so the build and the tests need it.
+
     sh tests/run_all.sh                # everything below, R and node optional
 
 or one at a time:
@@ -168,6 +181,12 @@ The Table 5 tests are the correctness check: the output must match the published
 exactly. The refusal and dose-parsing tests are the safety check. SPSS has no automated
 test — run it on `examples/table5_regimens_wide.csv`, which is the same sixteen regimens
 in wide format, and compare with `examples/table5_expected.csv`.
+
+## Code style
+
+The Python is formatted with [black](https://pypi.org/project/black/) and type-annotated
+throughout (checked with `mypy`). It uses the standard library only and runs on Python 3.8
+or later.
 
 ## Files
 

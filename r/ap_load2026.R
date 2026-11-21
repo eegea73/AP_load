@@ -18,8 +18,8 @@
 # Reads the same reference CSVs as the Python implementation, so the two cannot
 # drift apart. Base R only; no packages required.
 
-AP_LOAD_VERSION <- "1.0.0"
-AP_TABLE_VERSION <- "2026-09"
+AP_LOAD_VERSION <- "1.1.0"
+AP_TABLE_VERSION <- "2026-11"
 
 # Dosing intervals, in days. Labels that name the same schedule share a number,
 # and that number is the key the reference table is looked up under: 'monthly'

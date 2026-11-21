@@ -3,13 +3,13 @@ amisulpride,1200,400,600,1.5 x DDD (cap),BNF
 aripiprazole,30,15,21.2,geometric mean,BNF
 asenapine,20,20,20,geometric mean (= label max),FDA / SmPC
 blonanserin,24,,24,label max (no WHO DDD),PMDA (Japan)
-brexpiprazole,4,,4,label max (no WHO DDD),FDA
-cariprazine,6,,6,label max (no WHO DDD),FDA / SmPC
+brexpiprazole,4,3,3.46,geometric mean,FDA
+cariprazine,6,3,4.24,geometric mean,FDA / SmPC
 chlorpromazine,1000,300,450,1.5 x DDD (cap),BNF
 clozapine,900,300,,individualised target (see anchors),BNF
 flupentixol,18,6,9.0,1.5 x DDD (cap),BNF
 haloperidol,20,8,12,1.5 x DDD (cap),BNF
-iloperidone,24,,24,label max (no WHO DDD),FDA
+iloperidone,24,18,20.8,geometric mean,FDA
 lumateperone,42,,42,label max (no WHO DDD),FDA
 lurasidone,148,60,90,1.5 x DDD (cap),BNF
 olanzapine,20,10,14.1,geometric mean,BNF

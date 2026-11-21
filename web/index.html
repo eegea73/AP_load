@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>AP_Load2026 Calculator</title>
+<meta name="description" content="Compute the Antipsychotic Dose Load (AP_Load2026) for a prescribed regimen, with DDD/day and %BNFmax alongside.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Serif:wght@500;600&display=swap">
+<link rel="stylesheet" href="apload.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="wrap">
+    <p class="ruo" role="note">For research use only. This calculator normalises prescribed antipsychotic dose for research analyses; it is not a prescribing or clinical decision tool.</p>
+    <p class="eyebrow">Antipsychotic Dose Load</p>
+    <h1>AP_Load2026 calculator<span class="chip">reference table 2026</span></h1>
+    <p class="lede">Each prescribed daily dose as a percentage of a documented reference dose, summed across agents
+      without an upper cap. Clozapine is referenced to a target individualised for sex and cigarettes per day; the
+      other antipsychotics to a fixed dose reconciling the WHO DDD and the licensed maximum.</p>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <section class="calc" aria-label="Calculator">
+
+    <div>
+      <div class="panel">
+        <fieldset>
+          <p class="legend">Patient</p>
+          <div class="field-row">
+            <div class="field">
+              <span id="sex-label">Sex</span>
+              <div class="segmented" role="radiogroup" aria-labelledby="sex-label">
+                <input type="radio" name="sex" id="sex-f" value="F">
+                <label for="sex-f">Female</label>
+                <input type="radio" name="sex" id="sex-m" value="M" checked>
+                <label for="sex-m">Male</label>
+              </div>
+            </div>
+            <div class="field">
+              <label for="cigs">Cigarettes per day</label>
+              <div class="cig-row">
+                <input type="range" id="cigs" min="0" max="40" step="1" value="20" aria-describedby="cigs-hint">
+                <input type="number" id="cigs-num" min="0" max="60" step="1" value="20" aria-label="Cigarettes per day, number">
+              </div>
+            </div>
+          </div>
+          <p class="hint" id="cigs-hint">Tobacco only. Induction of CYP1A2 saturates at about ten cigarettes per day.
+            E-cigarettes, nicotine replacement and heated-tobacco products count as zero.</p>
+        </fieldset>
+
+        <fieldset>
+          <p class="legend">Clozapine anchors</p>
+          <div class="field">
+            <label for="scheme">Target-dose scheme</label>
+            <select id="scheme">
+              <option value="rh" selected>Rostami-Hodjegan-derived (standard configuration)</option>
+              <option value="reeves">Reeves-derived</option>
+            </select>
+          </div>
+          <p class="hint">The standard configuration tracked measured plasma clozapine better; the alternative is
+            provided for reproducing published comparisons, not as an equivalent option.</p>
+        </fieldset>
+      </div>
+
+      <div class="panel">
+        <p class="legend">Regimen</p>
+        <div class="rows" id="rows"></div>
+        <div class="actions">
+          <button type="button" class="btn btn--primary" id="add-row">Add antipsychotic</button>
+          <button type="button" class="btn" id="clear-rows">Clear</button>
+        </div>
+        <p class="hint">Add as many antipsychotics as the regimen has; the load is their sum, uncapped. Doses are
+          oral mg/day, or mg per injection interval for depots. Intravenous and short-acting
+          intramuscular doses are not covered.</p>
+      </div>
+    </div>
+
+    <div class="panel panel--result">
+      <p class="legend">AP_Load2026</p>
+      <div class="total">
+        <span class="total-value" id="total-value">—</span>
+        <span class="total-unit">% of reference</span>
+        <span id="total-flag"></span>
+      </div>
+
+      <dl class="comparators">
+        <div class="comparator">
+          <dt>DDD / day</dt>
+          <dd id="cmp-ddd">—</dd>
+        </div>
+        <div class="comparator">
+          <dt>% BNF maximum</dt>
+          <dd id="cmp-bnf">—</dd>
+        </div>
+      </dl>
+
+      <div class="cloz-target" id="cloz-target" hidden></div>
+
+      <div class="table-scroll" style="margin-top:14px">
+        <table>
+          <caption class="visually-hidden">Per-drug breakdown</caption>
+          <thead>
+            <tr>
+              <th scope="col">Agent</th>
+              <th scope="col" class="num">Ref.</th>
+              <th scope="col" class="num">AP_Load</th>
+              <th scope="col" class="num">DDD/d</th>
+              <th scope="col" class="num">%BNF</th>
+            </tr>
+          </thead>
+          <tbody id="breakdown-body"></tbody>
+          <tfoot>
+            <tr>
+              <td class="agent-cell">Total</td>
+              <td class="num" data-label="Ref.">—</td>
+              <td class="num" id="foot-ap" data-label="AP_Load">—</td>
+              <td class="num" id="foot-ddd" data-label="DDD/d">—</td>
+              <td class="num" id="foot-bnf" data-label="%BNF">—</td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+      <p class="hint" id="partial-note" hidden>* One or more agents has no WHO DDD or no current UK maximum, so that
+        comparator total covers only part of the regimen.</p>
+
+      <div class="actions">
+        <button type="button" class="btn" id="copy">Copy summary</button>
+      </div>
+    </div>
+
+  </section>
+
+  <section aria-labelledby="ref-heading">
+    <h2 id="ref-heading">Reference doses</h2>
+    <p class="section-note">The dose that scores 100. Oral agents are reconciled as the geometric mean of the licensed
+      maximum and the WHO DDD, capped at 1.5 × DDD; injectables are referenced to the licensed maximum for the same
+      dosing interval; clozapine to an individualised target, shown here for the sex and consumption set above.</p>
+    <label class="field search" for="ref-search">
+      Filter by name
+      <input type="text" id="ref-search" placeholder="e.g. olanzapine" autocomplete="off">
+    </label>
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Agent</th>
+            <th scope="col" class="num">BNFmax</th>
+            <th scope="col" class="num">WHO DDD</th>
+            <th scope="col" class="num">AP_Load = 100</th>
+            <th scope="col">Basis</th>
+          </tr>
+        </thead>
+        <tbody id="ref-body"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <footer class="site-footer">
+    <p>A research normalisation of prescribed dose, not a prescribing or regulatory instrument.</p>
+    <p>Fernandez-Egea E, Krishnadas R, Jenkins C, Patel R, Cardinal RN, Wolpe N. The Antipsychotic Dose Load
+      (AP_Load2026): a normalised prescribed-dose index for schizophrenia research.</p>
+    <p>Reference implementations in Python, R and SPSS, and the complete dated reference tables, accompany the paper.</p>
+  </footer>
+
+</div>
+
+<script src="apload.js"></script>
+</body>
+</html>

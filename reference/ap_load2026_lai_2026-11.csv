@@ -3,11 +3,11 @@ aripiprazole,monthly,400,13.3,BNF; WHO
 aripiprazole,2-monthly,960,13.3,BNF; WHO
 paliperidone,monthly,150,2.5,BNF; WHO
 paliperidone,3-monthly,525,2.5,BNF; WHO
-paliperidone,6-monthly,1000,,SmPC (Byannli)
+paliperidone,6-monthly,1000,2.5,SmPC (Byannli); WHO
 risperidone,2-weekly,50,2.7,BNF; WHO
-olanzapine,2-weekly,300,,SmPC
-olanzapine,4-weekly,405,,SmPC
+olanzapine,2-weekly,300,10,SmPC; WHO
+olanzapine,4-weekly,405,10,SmPC; WHO
 haloperidol,4-weekly,300,3.3,BNF; WHO
-flupentixol,weekly,400,,BNF
-zuclopenthixol,weekly,600,,BNF
-fluphenazine,2-weekly,100,,BNF / SmPC
+flupentixol,weekly,400,4,BNF; WHO
+zuclopenthixol,weekly,600,15,BNF; WHO
+fluphenazine,2-weekly,100,1,BNF / SmPC; WHO

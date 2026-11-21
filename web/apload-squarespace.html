@@ -1,0 +1,1039 @@
+<!-- =====================================================================
+     AP_Load2026 calculator - single-file build for a Squarespace code block.
+
+     Paste this whole file into a code block with the mode set to HTML.
+     Every style is scoped to #apload-app, so nothing here changes the rest of
+     your site, and your site's styles do not reach inside it.
+
+     Fernandez-Egea E, Krishnadas R, Jenkins C, Patel R, Cardinal RN, Wolpe N (2026).
+     Reference table dated 2026.
+     ===================================================================== -->
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Serif:wght@500;600&display=swap');
+
+/* ---- AP_Load2026 calculator, scoped ---- */
+#apload-app {
+  
+  --ap-ground:        #f5f7f8;
+  --ap-surface:       #ffffff;
+  --ap-surface-sunk:  #eef1f3;
+  --ap-ink:           #141a1e;
+  --ap-ink-muted:     #5b6771;
+  --ap-ink-faint:     #8a959e;
+  --ap-line:          #dbe1e5;
+  --ap-line-strong:   #c2ccd2;
+  --ap-accent:        #1c6f6a;
+  --ap-accent-ink:    #12514d;
+  --ap-accent-soft:   #e2efed;
+  --ap-warn:          #9a5b08;
+  --ap-warn-soft:     #f7ecda;
+  --ap-high:          #96331f;
+  --ap-high-soft:     #f7e4df;
+  --ap-focus:         #1c6f6a;
+
+  --ap-font-display: "IBM Plex Serif", Georgia, "Times New Roman", serif;
+  --ap-font-ui:      "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --ap-font-mono:    "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+
+  --ap-radius: 6px;
+  --ap-shadow: 0 1px 2px rgba(20, 26, 30, .06), 0 6px 18px rgba(20, 26, 30, .05);
+}
+#apload-app, #apload-app *, #apload-app *::before, #apload-app *::after { box-sizing: border-box; }
+
+/* Defensive reset: the page around this block may style headings, tables and
+   form controls. These are element-level selectors, so the calculator's own
+   class rules still win. */
+#apload-app * {
+  color: inherit;
+  text-transform: none;
+  font-style: normal;
+  letter-spacing: normal;
+  text-align: left;
+  float: none;
+}
+#apload-app table { border: 0; width: 100%; border-collapse: collapse; }
+#apload-app ul { list-style: disc; }
+#apload-app p, #apload-app ul, #apload-app dl, #apload-app h1, #apload-app h2 { margin: 0; }
+#apload-app button, #apload-app input, #apload-app select { font-family: inherit; box-shadow: none; }
+
+#apload-app {
+  background: var(--ap-ground);
+  color: var(--ap-ink);
+  font-family: var(--ap-font-ui);
+  font-size: 15px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+#apload-app .wrap {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding-inline: 16px;
+  padding-block: 0 56px;
+}
+#apload-app .ruo {
+  margin: 0 0 14px;
+  padding: 8px 12px;
+  border: 1px solid var(--ap-warn);
+  border-radius: var(--ap-radius);
+  background: var(--ap-warn-soft);
+  color: var(--ap-warn);
+  font-weight: 700;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+#apload-app .site-header {
+  border-bottom: 1px solid var(--ap-line);
+  background: var(--ap-surface);
+}
+#apload-app .site-header .wrap { padding-block: 26px 22px; }
+#apload-app .eyebrow {
+  font-family: var(--ap-font-mono);
+  font-size: 11px;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--ap-ink-faint);
+  margin: 0 0 6px;
+}
+#apload-app h1 {
+  font-family: var(--ap-font-display);
+  font-weight: 600;
+  font-size: clamp(26px, 4vw, 34px);
+  line-height: 1.15;
+  letter-spacing: -.01em;
+  margin: 0;
+  text-wrap: balance;
+}
+#apload-app .lede {
+  margin: 8px 0 0;
+  max-width: 62ch;
+  color: var(--ap-ink-muted);
+}
+#apload-app .chip {
+  display: inline-block;
+  font-family: var(--ap-font-mono);
+  font-size: 11px;
+  letter-spacing: .06em;
+  padding: 2px 8px;
+  border: 1px solid var(--ap-line-strong);
+  border-radius: 999px;
+  color: var(--ap-ink-muted);
+  vertical-align: 3px;
+  margin-left: 10px;
+  white-space: nowrap;
+}
+#apload-app section { margin-top: 40px; }
+#apload-app h2 {
+  font-family: var(--ap-font-display);
+  font-size: 21px;
+  font-weight: 600;
+  margin: 0 0 4px;
+  text-wrap: balance;
+}
+#apload-app .section-note {
+  margin: 0 0 18px;
+  color: var(--ap-ink-muted);
+  font-size: 14px;
+  max-width: 68ch;
+}
+#apload-app .legend {
+  font-family: var(--ap-font-mono);
+  font-size: 11px;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--ap-ink-faint);
+  padding: 0;
+  margin: 0 0 12px;
+}
+#apload-app .calc {
+  display: grid;
+  grid-template-columns: minmax(0, 1.08fr) minmax(0, 1fr);
+  gap: 20px;
+  align-items: start;
+}
+@media (max-width: 820px) {
+#apload-app .calc { grid-template-columns: minmax(0, 1fr); }
+}
+
+#apload-app .panel {
+  background: var(--ap-surface);
+  border: 1px solid var(--ap-line);
+  border-radius: var(--ap-radius);
+  padding: 18px;
+}
+#apload-app .panel + .panel { margin-top: 20px; }
+#apload-app .panel--result {
+  position: sticky;
+  top: calc(env(safe-area-inset-top, 0px) + 16px);
+  box-shadow: var(--ap-shadow);
+}
+@media (max-width: 820px) {
+#apload-app .panel--result { position: static; }
+}
+
+#apload-app fieldset { border: 0; margin: 0 0 20px; padding: 0; }
+#apload-app fieldset:last-of-type { margin-bottom: 0; }
+#apload-app label { font-size: 13px; color: var(--ap-ink-muted); }
+#apload-app .field { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
+#apload-app .field-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 170px), 1fr));
+  gap: 14px;
+}
+#apload-app select { text-overflow: ellipsis; }
+#apload-app input[type="number"], #apload-app input[type="text"], #apload-app select {
+  font: inherit;
+  font-family: var(--ap-font-ui);
+  color: var(--ap-ink);
+  background: var(--ap-surface);
+  border: 1px solid var(--ap-line-strong);
+  border-radius: var(--ap-radius);
+  padding: 7px 9px;
+  width: 100%;
+  min-width: 0;
+}
+#apload-app input[type="number"] { font-family: var(--ap-font-mono); font-variant-numeric: tabular-nums; }
+#apload-app input:focus-visible, #apload-app select:focus-visible, #apload-app button:focus-visible {
+  outline: 2px solid var(--ap-focus);
+  outline-offset: 2px;
+}
+#apload-app .segmented { display: flex; border: 1px solid var(--ap-line-strong); border-radius: var(--ap-radius); overflow: hidden; }
+#apload-app .segmented input { position: absolute; opacity: 0; pointer-events: none; }
+#apload-app .segmented label {
+  flex: 1 1 0;
+  min-width: 0;
+  padding: 7px 12px;
+  text-align: center;
+  cursor: pointer;
+  font-size: 14px;
+  color: var(--ap-ink-muted);
+  background: var(--ap-surface);
+  user-select: none;
+}
+#apload-app .segmented label + label { border-left: 1px solid var(--ap-line-strong); }
+#apload-app .segmented input:not(:checked) + label { background: var(--ap-surface-sunk); }
+#apload-app .segmented input:checked + label { background: var(--ap-accent); color: #ffffff; font-weight: 600; }
+#apload-app .segmented input:checked + label::before { content: "\2713\00a0"; }
+#apload-app .segmented input:focus-visible + label { outline: 2px solid var(--ap-focus); outline-offset: -2px; }
+#apload-app .cig-row { display: grid; grid-template-columns: minmax(0, 1fr) 76px; gap: 10px; align-items: center; }
+#apload-app input[type="range"] { width: 100%; accent-color: var(--ap-accent); }
+#apload-app .hint { font-size: 12.5px; color: var(--ap-ink-faint); margin: 6px 0 0; }
+#apload-app .rows { display: flex; flex-direction: column; gap: 10px; }
+#apload-app .row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 110px) 34px;
+  gap: 10px;
+  align-items: end;
+}
+#apload-app .row .unit {
+  font-family: var(--ap-font-mono);
+  font-size: 11px;
+  color: var(--ap-ink-faint);
+  letter-spacing: .04em;
+}
+#apload-app .icon-btn {
+  font: inherit;
+  line-height: 1;
+  height: 34px;
+  border: 1px solid var(--ap-line-strong);
+  background: var(--ap-surface);
+  color: var(--ap-ink-muted);
+  border-radius: var(--ap-radius);
+  cursor: pointer;
+}
+#apload-app .icon-btn:hover { border-color: var(--ap-high); color: var(--ap-high); }
+#apload-app .btn {
+  font: inherit;
+  font-size: 14px;
+  padding: 8px 14px;
+  border-radius: var(--ap-radius);
+  border: 1px solid var(--ap-line-strong);
+  background: var(--ap-surface);
+  color: var(--ap-ink);
+  cursor: pointer;
+}
+#apload-app .btn:hover { border-color: var(--ap-accent); color: var(--ap-accent-ink); }
+#apload-app .btn--primary { background: var(--ap-accent); border-color: var(--ap-accent); color: #fff; }
+#apload-app .btn--primary:hover { background: var(--ap-accent-ink); border-color: var(--ap-accent-ink); color: #fff; }
+#apload-app .actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; }
+#apload-app .total {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--ap-line);
+}
+#apload-app .total-value {
+  font-family: var(--ap-font-mono);
+  font-size: 46px;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: -.02em;
+  font-variant-numeric: tabular-nums;
+  color: var(--ap-accent-ink);
+}
+#apload-app .total-value.is-empty { font-size: 30px; color: var(--ap-ink-faint); }
+#apload-app .total-unit { font-family: var(--ap-font-mono); font-size: 15px; color: var(--ap-ink-muted); white-space: nowrap; }
+#apload-app .comparators {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1px;
+  margin-top: 14px;
+  background: var(--ap-line);
+  border: 1px solid var(--ap-line);
+  border-radius: var(--ap-radius);
+  overflow: hidden;
+}
+#apload-app .comparator { background: var(--ap-surface); padding: 10px 12px; }
+#apload-app .comparator dt {
+  font-family: var(--ap-font-mono);
+  font-size: 10.5px;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--ap-ink-faint);
+  margin: 0 0 2px;
+}
+#apload-app .comparator dd {
+  margin: 0;
+  font-family: var(--ap-font-mono);
+  font-size: 19px;
+  font-variant-numeric: tabular-nums;
+}
+#apload-app .cloz-target {
+  margin-top: 14px;
+  padding: 10px 12px;
+  background: var(--ap-accent-soft);
+  border-radius: var(--ap-radius);
+  font-size: 13.5px;
+  color: var(--ap-accent-ink);
+}
+#apload-app .cloz-target b { font-family: var(--ap-font-mono); font-weight: 600; }
+#apload-app .flag {
+  display: inline-block;
+  font-family: var(--ap-font-mono);
+  font-size: 10.5px;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  padding: 1px 6px;
+  border-radius: 3px;
+  margin-left: 8px;
+  vertical-align: 2px;
+}
+#apload-app .flag--over { background: var(--ap-warn-soft); color: var(--ap-warn); }
+#apload-app .flag--high { background: var(--ap-high-soft); color: var(--ap-high); }
+#apload-app .table-scroll { overflow-x: auto; border: 1px solid var(--ap-line); border-radius: var(--ap-radius); background: var(--ap-surface); }
+#apload-app table { border-collapse: collapse; width: 100%; font-size: 13.5px; }
+#apload-app th, #apload-app td { padding: 7px 11px; text-align: left; border-bottom: 1px solid var(--ap-line); white-space: nowrap; }
+#apload-app th {
+  font-family: var(--ap-font-mono);
+  font-size: 12.5px;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--ap-ink-faint);
+  font-weight: 500;
+  background: var(--ap-surface-sunk);
+  position: sticky;
+  top: 0;
+}
+#apload-app tbody tr:last-child td { border-bottom: 0; }
+#apload-app td.num, #apload-app th.num { text-align: right; font-family: var(--ap-font-mono); font-variant-numeric: tabular-nums; }
+#apload-app tr.group td {
+  background: var(--ap-surface-sunk);
+  font-family: var(--ap-font-mono);
+  font-size: 11.5px;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--ap-ink-faint);
+}
+#apload-app tfoot td { font-weight: 600; background: var(--ap-surface-sunk); border-top: 1px solid var(--ap-line-strong); }
+#apload-app td .drug-note { color: var(--ap-ink-faint); font-size: 12px; }
+#apload-app .empty { padding: 16px; color: var(--ap-ink-faint); font-size: 13.5px; }
+#apload-app .panel--result table { font-size: 13px; }
+#apload-app .panel--result th { font-size: 11.5px; }
+#apload-app .panel--result th, #apload-app .panel--result td { padding: 6px 8px; }
+#apload-app .panel--result th:first-child, #apload-app .panel--result td:first-child { padding-left: 10px; }
+/* On a phone a five-column table can only be read by swiping it sideways, and
+   the column that matters is the one off the right edge. Below 600px each row
+   becomes a block and every figure carries its own column name. */
+@media (max-width: 600px) {
+  #apload-app .table-scroll { overflow-x: visible; }
+  #apload-app .table-scroll table, #apload-app .table-scroll tbody, #apload-app .table-scroll tfoot, #apload-app .table-scroll tr, #apload-app .table-scroll td { display: block; width: auto; }
+  #apload-app .table-scroll thead { display: none; }
+  #apload-app .table-scroll tbody tr, #apload-app .table-scroll tfoot tr {
+    padding: 9px 0;
+    border-bottom: 1px solid var(--ap-line);
+  }
+  #apload-app .table-scroll tbody tr:last-child { border-bottom: 0; }
+  #apload-app .table-scroll td {
+    border: 0;
+    padding: 2px 12px;
+    white-space: normal;
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 14px;
+  }
+  #apload-app .table-scroll td.agent-cell {
+    display: block;
+    font-weight: 600;
+    padding-bottom: 4px;
+  }
+  #apload-app .table-scroll td[data-label]::before {
+    content: attr(data-label);
+    flex: 0 0 auto;
+    font-family: var(--ap-font-mono);
+    font-size: 11.5px;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    color: var(--ap-ink-faint);
+  }
+  #apload-app .table-scroll tr.group td, #apload-app .table-scroll td.empty { display: block; }
+  #apload-app .table-scroll tr.group { padding: 0; }
+  #apload-app .table-scroll tr.group td { padding: 7px 12px; }
+  #apload-app .table-scroll tfoot tr { background: var(--ap-surface-sunk); border-top: 1px solid var(--ap-line-strong); }
+}
+
+#apload-app .search {
+  max-width: 320px;
+  margin-bottom: 12px;
+}
+#apload-app .site-footer {
+  border-top: 1px solid var(--ap-line);
+  margin-top: 44px;
+  padding-top: 18px;
+  font-size: 13px;
+  color: var(--ap-ink-muted);
+}
+#apload-app .site-footer p { margin: 0 0 6px; max-width: 78ch; }
+#apload-app .site-footer a { color: var(--ap-accent-ink); }
+@media (prefers-reduced-motion: reduce) {
+#apload-app, #apload-app * { animation-duration: .001ms !important; transition-duration: .001ms !important; }
+}
+
+#apload-app .visually-hidden {
+  position: absolute;
+  width: 1px; height: 1px;
+  margin: -1px; padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* To honour a visitor's dark-mode preference, remove the two comment markers
+   around the block below. Left off by default so the calculator follows the
+   light styling of the page it sits in. */
+/*
+@media (prefers-color-scheme: dark) {
+#apload-app {
+    --ap-ground:       #11161a;
+    --ap-surface:      #181f24;
+    --ap-surface-sunk: #131a1f;
+    --ap-ink:          #e7edf1;
+    --ap-ink-muted:    #9aa5ae;
+    --ap-ink-faint:    #6f7b85;
+    --ap-line:         #28323a;
+    --ap-line-strong:  #3a4650;
+    --ap-accent:       #54bdb3;
+    --ap-accent-ink:   #8ad8d0;
+    --ap-accent-soft:  #14302e;
+    --ap-warn:         #d79c4e;
+    --ap-warn-soft:    #2e2517;
+    --ap-high:         #e08a74;
+    --ap-high-soft:    #33201b;
+    --ap-focus:        #54bdb3;
+    --ap-shadow: 0 1px 2px rgba(0, 0, 0, .4), 0 6px 18px rgba(0, 0, 0, .3);
+  }
+}
+*/
+</style>
+
+<div id="apload-app">
+<header class="site-header">
+  <div class="wrap">
+    <p class="ruo" role="note">For research use only. This calculator normalises prescribed antipsychotic dose for research analyses; it is not a prescribing or clinical decision tool.</p>
+    <p class="eyebrow">Antipsychotic Dose Load</p>
+    <h1>AP_Load2026 calculator<span class="chip">reference table 2026</span></h1>
+    <p class="lede">Each prescribed daily dose as a percentage of a documented reference dose, summed across agents
+      without an upper cap. Clozapine is referenced to a target individualised for sex and cigarettes per day; the
+      other antipsychotics to a fixed dose reconciling the WHO DDD and the licensed maximum.</p>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <section class="calc" aria-label="Calculator">
+
+    <div>
+      <div class="panel">
+        <fieldset>
+          <p class="legend">Patient</p>
+          <div class="field-row">
+            <div class="field">
+              <span id="sex-label">Sex</span>
+              <div class="segmented" role="radiogroup" aria-labelledby="sex-label">
+                <input type="radio" name="sex" id="sex-f" value="F">
+                <label for="sex-f">Female</label>
+                <input type="radio" name="sex" id="sex-m" value="M" checked>
+                <label for="sex-m">Male</label>
+              </div>
+            </div>
+            <div class="field">
+              <label for="cigs">Cigarettes per day</label>
+              <div class="cig-row">
+                <input type="range" id="cigs" min="0" max="40" step="1" value="20" aria-describedby="cigs-hint">
+                <input type="number" id="cigs-num" min="0" max="60" step="1" value="20" aria-label="Cigarettes per day, number">
+              </div>
+            </div>
+          </div>
+          <p class="hint" id="cigs-hint">Tobacco only. Induction of CYP1A2 saturates at about ten cigarettes per day.
+            E-cigarettes, nicotine replacement and heated-tobacco products count as zero.</p>
+        </fieldset>
+
+        <fieldset>
+          <p class="legend">Clozapine anchors</p>
+          <div class="field">
+            <label for="scheme">Target-dose scheme</label>
+            <select id="scheme">
+              <option value="rh" selected>Rostami-Hodjegan-derived (standard configuration)</option>
+              <option value="reeves">Reeves-derived</option>
+            </select>
+          </div>
+          <p class="hint">The standard configuration tracked measured plasma clozapine better; the alternative is
+            provided for reproducing published comparisons, not as an equivalent option.</p>
+        </fieldset>
+      </div>
+
+      <div class="panel">
+        <p class="legend">Regimen</p>
+        <div class="rows" id="rows"></div>
+        <div class="actions">
+          <button type="button" class="btn btn--primary" id="add-row">Add antipsychotic</button>
+          <button type="button" class="btn" id="clear-rows">Clear</button>
+        </div>
+        <p class="hint">Add as many antipsychotics as the regimen has; the load is their sum, uncapped. Doses are
+          oral mg/day, or mg per injection interval for depots. Intravenous and short-acting
+          intramuscular doses are not covered.</p>
+      </div>
+    </div>
+
+    <div class="panel panel--result">
+      <p class="legend">AP_Load2026</p>
+      <div class="total">
+        <span class="total-value" id="total-value">—</span>
+        <span class="total-unit">% of reference</span>
+        <span id="total-flag"></span>
+      </div>
+
+      <dl class="comparators">
+        <div class="comparator">
+          <dt>DDD / day</dt>
+          <dd id="cmp-ddd">—</dd>
+        </div>
+        <div class="comparator">
+          <dt>% BNF maximum</dt>
+          <dd id="cmp-bnf">—</dd>
+        </div>
+      </dl>
+
+      <div class="cloz-target" id="cloz-target" hidden></div>
+
+      <div class="table-scroll" style="margin-top:14px">
+        <table>
+          <caption class="visually-hidden">Per-drug breakdown</caption>
+          <thead>
+            <tr>
+              <th scope="col">Agent</th>
+              <th scope="col" class="num">Ref.</th>
+              <th scope="col" class="num">AP_Load</th>
+              <th scope="col" class="num">DDD/d</th>
+              <th scope="col" class="num">%BNF</th>
+            </tr>
+          </thead>
+          <tbody id="breakdown-body"></tbody>
+          <tfoot>
+            <tr>
+              <td class="agent-cell">Total</td>
+              <td class="num" data-label="Ref.">—</td>
+              <td class="num" id="foot-ap" data-label="AP_Load">—</td>
+              <td class="num" id="foot-ddd" data-label="DDD/d">—</td>
+              <td class="num" id="foot-bnf" data-label="%BNF">—</td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+      <p class="hint" id="partial-note" hidden>* One or more agents has no WHO DDD or no current UK maximum, so that
+        comparator total covers only part of the regimen.</p>
+
+      <div class="actions">
+        <button type="button" class="btn" id="copy">Copy summary</button>
+      </div>
+    </div>
+
+  </section>
+
+  <section aria-labelledby="ref-heading">
+    <h2 id="ref-heading">Reference doses</h2>
+    <p class="section-note">The dose that scores 100. Oral agents are reconciled as the geometric mean of the licensed
+      maximum and the WHO DDD, capped at 1.5 × DDD; injectables are referenced to the licensed maximum for the same
+      dosing interval; clozapine to an individualised target, shown here for the sex and consumption set above.</p>
+    <label class="field search" for="ref-search">
+      Filter by name
+      <input type="text" id="ref-search" placeholder="e.g. olanzapine" autocomplete="off">
+    </label>
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Agent</th>
+            <th scope="col" class="num">BNFmax</th>
+            <th scope="col" class="num">WHO DDD</th>
+            <th scope="col" class="num">AP_Load = 100</th>
+            <th scope="col">Basis</th>
+          </tr>
+        </thead>
+        <tbody id="ref-body"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <footer class="site-footer">
+    <p>A research normalisation of prescribed dose, not a prescribing or regulatory instrument.</p>
+    <p>Fernandez-Egea E, Krishnadas R, Jenkins C, Patel R, Cardinal RN, Wolpe N. The Antipsychotic Dose Load
+      (AP_Load2026): a normalised prescribed-dose index for schizophrenia research.</p>
+    <p>Reference implementations in Python, R and SPSS, and the complete dated reference tables, accompany the paper.</p>
+  </footer>
+
+</div>
+</div>
+
+<script>
+/* AP_Load2026 calculator
+ * Reference implementation of the Antipsychotic Dose Load, reference table dated 2026.
+ * Fernandez-Egea E, Krishnadas R, Jenkins C, Patel R, Cardinal RN, Wolpe N (2026).
+ *
+ * The index: prescribed daily dose as a percentage of a reference dose, summed
+ * across agents without an upper cap.
+ *   - clozapine  -> reference is a target dose individualised for sex and cigarettes/day
+ *   - other oral -> reference is min( sqrt(BNFmax x DDD), 1.5 x DDD )
+ *   - injectables-> reference is the licensed maximum for the same dosing interval
+ * Nothing here is a prescribing tool.
+ */
+(function () {
+  'use strict';
+
+  /* ------------------------------------------------------------------ data */
+
+  /* BEGIN GENERATED TABLES - do not edit by hand.
+     Written from reference/*.csv by:  python3 build/generate_web.py
+     These are the same tables the Python, R and SPSS implementations read.
+     Display names are cosmetic and come from the generator; every number
+     comes from the reference CSVs. */
+
+  // bnfMax: UK BNF 2026 maximum, or national label maximum (mg/day). null = none current.
+  // ddd: WHO Defined Daily Dose (mg/day). null = no assigned DDD.
+  var ORAL = [
+    { name: 'Amisulpride', bnfMax: 1200, ddd: 400 },
+    { name: 'Aripiprazole', bnfMax: 30, ddd: 15 },
+    { name: 'Asenapine', bnfMax: 20, ddd: 20 },
+    { name: 'Blonanserin', bnfMax: 24, ddd: null },
+    { name: 'Brexpiprazole', bnfMax: 4, ddd: 3 },
+    { name: 'Cariprazine', bnfMax: 6, ddd: 3 },
+    { name: 'Chlorpromazine', bnfMax: 1000, ddd: 300 },
+    { name: 'Clozapine', bnfMax: 900, ddd: 300, individualised: true },
+    { name: 'Flupentixol', bnfMax: 18, ddd: 6 },
+    { name: 'Fluphenazine', bnfMax: null, ddd: 10, note: 'oral form discontinued in the UK' },
+    { name: 'Haloperidol', bnfMax: 20, ddd: 8 },
+    { name: 'Iloperidone', bnfMax: 24, ddd: 18 },
+    { name: 'Levomepromazine', bnfMax: null, ddd: 300 },
+    { name: 'Lumateperone', bnfMax: 42, ddd: null },
+    { name: 'Lurasidone', bnfMax: 148, ddd: 60 },
+    { name: 'Olanzapine', bnfMax: 20, ddd: 10 },
+    { name: 'Paliperidone', bnfMax: 12, ddd: 6 },
+    { name: 'Penfluridol', bnfMax: null, ddd: 6, note: 'weekly oral; daily equivalent' },
+    { name: 'Pimozide', bnfMax: 20, ddd: 4 },
+    { name: 'Quetiapine', bnfMax: 750, ddd: 400 },
+    { name: 'Risperidone', bnfMax: 16, ddd: 5 },
+    { name: 'Sulpiride', bnfMax: 2400, ddd: 800 },
+    { name: 'Trifluoperazine', bnfMax: 20, ddd: 20 },
+    { name: 'Xanomeline-trospium', bnfMax: 250, ddd: null, note: 'xanomeline component' },
+    { name: 'Ziprasidone', bnfMax: 160, ddd: 80 },
+    { name: 'Zuclopenthixol', bnfMax: 150, ddd: 30 }
+  ];
+
+  // maxPerInterval: licensed maximum for one injection interval (mg).
+  // depotDDD: WHO defined daily dose for the depot (mg/day); dddDays is the
+  // calendar length WHO derives it over, and is used only for that column.
+  var LAI = [
+    { name: 'Aripiprazole', interval: 'monthly', dddDays: 30, maxPerInterval: 400, depotDDD: 13.3 },
+    { name: 'Aripiprazole', interval: '2-monthly', dddDays: 60, maxPerInterval: 960, depotDDD: 13.3 },
+    { name: 'Paliperidone', interval: 'monthly', dddDays: 30, maxPerInterval: 150, depotDDD: 2.5 },
+    { name: 'Paliperidone', interval: '3-monthly', dddDays: 90, maxPerInterval: 525, depotDDD: 2.5 },
+    { name: 'Paliperidone', interval: '6-monthly', dddDays: 180, maxPerInterval: 1000, depotDDD: 2.5 },
+    { name: 'Risperidone', interval: '2-weekly', dddDays: 14, maxPerInterval: 50, depotDDD: 2.7 },
+    { name: 'Olanzapine', interval: '2-weekly', dddDays: 14, maxPerInterval: 300, depotDDD: 10 },
+    { name: 'Olanzapine', interval: '4-weekly', dddDays: 28, maxPerInterval: 405, depotDDD: 10 },
+    { name: 'Haloperidol decanoate', interval: '4-weekly', dddDays: 28, maxPerInterval: 300, depotDDD: 3.3 },
+    { name: 'Flupentixol decanoate', interval: 'weekly', dddDays: 7, maxPerInterval: 400, depotDDD: 4 },
+    { name: 'Zuclopenthixol decanoate', interval: 'weekly', dddDays: 7, maxPerInterval: 600, depotDDD: 15 },
+    { name: 'Fluphenazine decanoate', interval: '2-weekly', dddDays: 14, maxPerInterval: 100, depotDDD: 1 }
+  ];
+
+  // Individualised clozapine target doses (mg/day) for a plasma clozapine of 0.35 mg/L.
+  var CLOZ_ANCHORS = {
+    rh:     { label: 'Rostami-Hodjegan-derived (standard)', F: { ns: 265, s: 431 }, M: { ns: 323, s: 525 } },
+    reeves: { label: 'Reeves-derived', F: { ns: 226, s: 293 }, M: { ns: 275, s: 358 } }
+  };
+  var CLOZ_BNF_MAX = 900;
+  var CLOZ_DDD = 300;
+  var SATURATION_CIGS = 10;   // CYP1A2 induction saturates at ~10 cigarettes/day
+
+  /* END GENERATED TABLES */
+
+  /* ------------------------------------------------------------- the index */
+
+  // Reference dose for a non-clozapine oral agent.
+  function oralReference(agent) {
+    if (agent.ddd && agent.bnfMax) return Math.min(Math.sqrt(agent.bnfMax * agent.ddd), 1.5 * agent.ddd);
+    if (agent.ddd) return 1.5 * agent.ddd;                   // no current label maximum
+    return agent.bnfMax;                                     // no assigned WHO DDD
+  }
+
+  function oralBasis(agent) {
+    if (!agent.ddd) return 'Label maximum (no WHO DDD)';
+    if (!agent.bnfMax) return '1.5 × DDD (no current UK maximum)';
+    return Math.sqrt(agent.bnfMax * agent.ddd) > 1.5 * agent.ddd ? '1.5 × DDD (cap)' : 'Geometric mean';
+  }
+
+  // Clozapine target dose for this sex and tobacco consumption.
+  function clozapineTarget(scheme, sex, cigs) {
+    var a = CLOZ_ANCHORS[scheme][sex];
+    var induction = Math.min(1, Math.max(0, cigs) / SATURATION_CIGS);
+    return a.ns + (a.s - a.ns) * induction;
+  }
+
+  /* ------------------------------------------------------------------ state */
+
+  var state = {
+    sex: 'M',
+    cigs: 20,
+    scheme: 'rh',
+    // opens empty: one line, nothing chosen, nothing assumed about the patient's regimen
+    rows: [ { key: '', dose: '' } ]
+  };
+
+  var nf = function (v, dp) {
+    if (v === null || v === undefined || isNaN(v)) return '—';
+    return v.toLocaleString('en-GB', { minimumFractionDigits: dp, maximumFractionDigits: dp });
+  };
+
+  function agentByKey(key) {
+    var bits = key.split(':');
+    if (bits[0] === 'oral') {
+      var o = ORAL.filter(function (a) { return a.name === bits[1]; })[0];
+      return o ? { kind: 'oral', agent: o } : null;
+    }
+    var l = LAI.filter(function (a) { return a.name + '|' + a.interval === bits[1]; })[0];
+    return l ? { kind: 'lai', agent: l } : null;
+  }
+
+  // One regimen line -> AP_Load, DDD/day and %BNFmax.
+  function scoreRow(row) {
+    var found = agentByKey(row.key);
+    if (!found) return null;
+    var dose = Number(row.dose) || 0;
+    var a = found.agent;
+
+    if (found.kind === 'lai') {
+      return {
+        label: a.name + ' LAI',
+        detail: a.interval,
+        unit: 'mg / ' + a.interval.replace('-', ' '),
+        reference: a.maxPerInterval,
+        apLoad: dose / a.maxPerInterval * 100,
+        dddDay: a.depotDDD ? (dose / a.dddDays) / a.depotDDD : null,
+        bnfPct: dose / a.maxPerInterval * 100
+      };
+    }
+    if (a.name === 'Clozapine') {
+      var target = clozapineTarget(state.scheme, state.sex, state.cigs);
+      return {
+        label: 'Clozapine',
+        detail: 'individualised target ' + nf(target, 0) + ' mg/day',
+        unit: 'mg/day',
+        reference: target,
+        apLoad: dose / target * 100,
+        dddDay: dose / CLOZ_DDD,
+        bnfPct: dose / CLOZ_BNF_MAX * 100
+      };
+    }
+    var ref = oralReference(a);
+    return {
+      label: a.name,
+      detail: a.note || oralBasis(a),
+      unit: 'mg/day',
+      reference: ref,
+      apLoad: dose / ref * 100,
+      dddDay: a.ddd ? dose / a.ddd : null,
+      bnfPct: a.bnfMax ? dose / a.bnfMax * 100 : null
+    };
+  }
+
+  /* -------------------------------------------------------------- rendering */
+
+  var $ = function (id) { return document.getElementById(id); };
+
+  // Decimal places for a reference dose: enough to match the published tables
+  // (3.46 mg brexpiprazole, 20.8 mg iloperidone, 600 mg amisulpride).
+  function refDp(v) { return v < 10 ? 2 : (v < 50 ? 1 : 0); }
+
+  // Oral unless a depot is chosen, said in the label: an intravenous or short-acting
+  // intramuscular dose (haloperidol IV, say) must not be typed into an oral box.
+  function doseLabel(key) {
+    var found = agentByKey(key || '');
+    return found && found.kind === 'lai' ? 'Depot dose' : 'Oral dose';
+  }
+
+  function agentOptions(selected) {
+    var html = '<option value="">Select an antipsychotic…</option>';
+    html += '<optgroup label="Oral (tablets, liquids)">';
+    ORAL.forEach(function (a) {
+      var k = 'oral:' + a.name;
+      html += '<option value="' + k + '"' + (k === selected ? ' selected' : '') + '>' + a.name + '</option>';
+    });
+    html += '</optgroup><optgroup label="Long-acting injectable">';
+    LAI.forEach(function (a) {
+      var k = 'lai:' + a.name + '|' + a.interval;
+      html += '<option value="' + k + '"' + (k === selected ? ' selected' : '') +
+              '>' + a.name + ', ' + a.interval + '</option>';
+    });
+    return html + '</optgroup>';
+  }
+
+  function renderRows() {
+    var host = $('rows');
+    host.innerHTML = '';
+    state.rows.forEach(function (row, i) {
+      var scored = scoreRow(row);
+      var div = document.createElement('div');
+      div.className = 'row';
+      div.innerHTML =
+        '<div class="field">' +
+          '<label for="agent' + i + '">Antipsychotic</label>' +
+          '<select id="agent' + i + '" data-i="' + i + '" class="js-agent">' + agentOptions(row.key) + '</select>' +
+        '</div>' +
+        '<div class="field">' +
+          '<label for="dose' + i + '">' + doseLabel(row.key) + ' <span class="unit">' + (scored ? scored.unit : 'mg/day') + '</span></label>' +
+          '<input type="number" id="dose' + i + '" data-i="' + i + '" class="js-dose" min="0" step="any" value="' +
+            (row.dose === '' ? '' : row.dose) + '">' +
+        '</div>' +
+        '<button type="button" class="icon-btn js-remove" data-i="' + i + '" aria-label="Remove ' +
+          (scored ? scored.label : 'this line') + '">×</button>';
+      host.appendChild(div);
+    });
+    if (!state.rows.length) {
+      host.innerHTML = '<p class="empty">No antipsychotic yet. Add one to score a regimen.</p>';
+    }
+  }
+
+  function flagFor(total) {
+    if (total > 150) return '<span class="flag flag--high">above 150</span>';
+    if (total > 100) return '<span class="flag flag--over">above reference</span>';
+    return '';
+  }
+
+  function renderResult() {
+    var scored = state.rows.map(scoreRow).filter(Boolean);
+    var totals = scored.reduce(function (acc, s) {
+      acc.ap += s.apLoad;
+      if (s.dddDay !== null) acc.ddd += s.dddDay; else acc.dddPartial = true;
+      if (s.bnfPct !== null) acc.bnf += s.bnfPct; else acc.bnfPartial = true;
+      return acc;
+    }, { ap: 0, ddd: 0, bnf: 0, dddPartial: false, bnfPartial: false });
+
+    $('total-value').textContent = scored.length ? nf(totals.ap, 0) : '—';
+    $('total-value').classList.toggle('is-empty', !scored.length);
+    $('total-flag').innerHTML = scored.length ? flagFor(totals.ap) : '';
+    $('cmp-ddd').textContent = scored.length ? nf(totals.ddd, 2) + (totals.dddPartial ? '*' : '') : '—';
+    $('cmp-bnf').textContent = scored.length ? nf(totals.bnf, 0) + (totals.bnfPartial ? '*' : '') : '—';
+
+    var hasCloz = state.rows.some(function (r) { return r.key === 'oral:Clozapine'; });
+    var box = $('cloz-target');
+    box.hidden = !hasCloz;
+    if (hasCloz) {
+      var t = clozapineTarget(state.scheme, state.sex, state.cigs);
+      box.innerHTML = 'Clozapine target for a ' + (state.sex === 'F' ? 'woman' : 'man') +
+        ' smoking ' + nf(state.cigs, 0) + ' cigarettes/day: <b>' + nf(t, 0) + ' mg/day</b> ' +
+        '— the dose expected to give a plasma clozapine of about 0.35 mg/L, and so the dose that scores 100.';
+    }
+
+    var body = $('breakdown-body');
+    body.innerHTML = '';
+    if (!scored.length) {
+      body.innerHTML = '<tr><td colspan="5" class="empty">Add an antipsychotic to see the breakdown.</td></tr>';
+    } else {
+      scored.forEach(function (s) {
+        var tr = document.createElement('tr');
+        tr.innerHTML =
+          '<td class="agent-cell">' + s.label + '<br><span class="drug-note">' + s.detail + '</span></td>' +
+          '<td class="num" data-label="Ref.">' + nf(s.reference, refDp(s.reference)) + '</td>' +
+          '<td class="num" data-label="AP_Load">' + nf(s.apLoad, 0) + '</td>' +
+          '<td class="num" data-label="DDD/d">' + (s.dddDay === null ? '—' : nf(s.dddDay, 2)) + '</td>' +
+          '<td class="num" data-label="%BNF">' + (s.bnfPct === null ? '—' : nf(s.bnfPct, 0)) + '</td>';
+        body.appendChild(tr);
+      });
+    }
+    $('foot-ap').textContent = scored.length ? nf(totals.ap, 0) : '—';
+    $('foot-ddd').textContent = scored.length ? nf(totals.ddd, 2) : '—';
+    $('foot-bnf').textContent = scored.length ? nf(totals.bnf, 0) : '—';
+    $('partial-note').hidden = !(totals.dddPartial || totals.bnfPartial);
+  }
+
+  function renderReference() {
+    var q = ($('ref-search').value || '').trim().toLowerCase();
+    var body = $('ref-body');
+    body.innerHTML = '';
+
+    function add(html) { var tr = document.createElement('tr'); tr.innerHTML = html; body.appendChild(tr); }
+
+    var orals = ORAL.filter(function (a) {
+      return !a.individualised && a.name.toLowerCase().indexOf(q) > -1;
+    });
+    if (orals.length) {
+      add('<td colspan="5" class="group-cell">Oral antipsychotics — mg/day</td>');
+      body.lastChild.className = 'group';
+      orals.forEach(function (a) {
+        var ref = oralReference(a);
+        add('<td class="agent-cell">' + a.name + (a.note ? '<br><span class="drug-note">' + a.note + '</span>' : '') + '</td>' +
+            '<td class="num" data-label="BNFmax">' + (a.bnfMax === null ? '—' : nf(a.bnfMax, 0)) + '</td>' +
+            '<td class="num" data-label="WHO DDD">' + (a.ddd === null ? '—' : nf(a.ddd, 0)) + '</td>' +
+            '<td class="num" data-label="AP_Load = 100">' + nf(ref, refDp(ref)) + '</td>' +
+            '<td data-label="Basis">' + oralBasis(a) + '</td>');
+      });
+    }
+
+    if ('clozapine'.indexOf(q) > -1 || q === '') {
+      add('<td colspan="5">Clozapine — individualised, mg/day</td>');
+      body.lastChild.className = 'group';
+      [['Female, non-smoker', 'F', 0], ['Male, non-smoker', 'M', 0],
+       ['Female, smoker (≥10/day)', 'F', 10], ['Male, smoker (≥10/day)', 'M', 10]
+      ].forEach(function (row) {
+        var t = clozapineTarget(state.scheme, row[1], row[2]);
+        add('<td class="agent-cell">' + row[0] + '</td>' +
+            '<td class="num" data-label="BNFmax">900</td>' +
+            '<td class="num" data-label="WHO DDD">300</td>' +
+            '<td class="num" data-label="AP_Load = 100">' + nf(t, 0) + '</td>' +
+            '<td data-label="Basis">Target for 0.35 mg/L</td>');
+      });
+    }
+
+    var lais = LAI.filter(function (a) { return (a.name + ' ' + a.interval).toLowerCase().indexOf(q) > -1; });
+    if (lais.length) {
+      add('<td colspan="5">Long-acting injectables — mg per dosing interval</td>');
+      body.lastChild.className = 'group';
+      lais.forEach(function (a) {
+        add('<td class="agent-cell">' + a.name + ', ' + a.interval + '</td>' +
+            '<td class="num" data-label="Licensed max">' + nf(a.maxPerInterval, 0) + '</td>' +
+            '<td class="num" data-label="WHO depot DDD">' + (a.depotDDD === null ? '—' : nf(a.depotDDD, 1)) + '</td>' +
+            '<td class="num" data-label="AP_Load = 100">' + nf(a.maxPerInterval, 0) + '</td>' +
+            '<td data-label="Basis">Licensed maximum per interval</td>');
+      });
+    }
+
+    if (!body.children.length) {
+      add('<td colspan="5" class="empty">Nothing matches that name.</td>');
+    }
+  }
+
+  function render() { renderRows(); renderResult(); renderReference(); }
+
+  /* ----------------------------------------------------------------- events */
+
+  function bind() {
+    $('rows').addEventListener('change', function (e) {
+      if (e.target.classList.contains('js-agent')) {
+        state.rows[+e.target.dataset.i].key = e.target.value;
+        render();
+      }
+    });
+    $('rows').addEventListener('input', function (e) {
+      if (e.target.classList.contains('js-dose')) {
+        state.rows[+e.target.dataset.i].dose = e.target.value === '' ? '' : Number(e.target.value);
+        renderResult();
+      }
+    });
+    $('rows').addEventListener('click', function (e) {
+      var btn = e.target.closest('.js-remove');
+      if (!btn) return;
+      state.rows.splice(+btn.dataset.i, 1);
+      render();
+    });
+    $('add-row').addEventListener('click', function () {
+      state.rows.push({ key: '', dose: '' });
+      render();
+      var sel = document.querySelectorAll('.js-agent');
+      if (sel.length) sel[sel.length - 1].focus();
+    });
+    $('clear-rows').addEventListener('click', function () {
+      state.rows = [];
+      render();
+    });
+
+    Array.prototype.forEach.call(document.querySelectorAll('input[name="sex"]'), function (r) {
+      r.addEventListener('change', function () { state.sex = r.value; render(); });
+    });
+    $('cigs').addEventListener('input', function () {
+      state.cigs = Number($('cigs').value) || 0;
+      $('cigs-num').value = state.cigs;
+      renderResult(); renderReference();
+    });
+    $('cigs-num').addEventListener('input', function () {
+      state.cigs = Math.max(0, Math.min(60, Number($('cigs-num').value) || 0));
+      $('cigs').value = state.cigs;
+      renderResult(); renderReference();
+    });
+    $('scheme').addEventListener('change', function () {
+      state.scheme = $('scheme').value;
+      render();
+    });
+    $('ref-search').addEventListener('input', renderReference);
+
+    $('copy').addEventListener('click', function () {
+      var scored = state.rows.map(scoreRow).filter(Boolean);
+      if (!scored.length) return;
+      var total = scored.reduce(function (t, s) { return t + s.apLoad; }, 0);
+      var lines = ['AP_Load2026 — ' + (state.sex === 'F' ? 'female' : 'male') + ', ' +
+                   state.cigs + ' cigarettes/day, ' + CLOZ_ANCHORS[state.scheme].label + ' clozapine anchors'];
+      scored.forEach(function (s) {
+        lines.push('  ' + s.label + ': ' + nf(s.apLoad, 0) + '% of ' + nf(s.reference, 0) + ' ' + s.unit);
+      });
+      lines.push('  Total AP_Load2026: ' + nf(total, 0));
+      var text = lines.join('\n');
+      var done = function () {
+        $('copy').textContent = 'Copied';
+        setTimeout(function () { $('copy').textContent = 'Copy summary'; }, 1600);
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(done, function () { window.prompt('Copy the summary:', text); });
+      } else {
+        window.prompt('Copy the summary:', text);
+      }
+    });
+  }
+
+  /* Under node (the test in tests/test_web.js) there is no page to render: the
+     tables and the scoring functions are exported instead, so the calculator is
+     checked against manuscript Table 5 like the other implementations. */
+  if (typeof module !== 'undefined' && module.exports) {
+    module.exports = {
+      ORAL: ORAL, LAI: LAI, CLOZ_ANCHORS: CLOZ_ANCHORS, state: state,
+      oralReference: oralReference, clozapineTarget: clozapineTarget, scoreRow: scoreRow
+    };
+    return;
+  }
+
+  bind();
+  render();
+})();
+</script>

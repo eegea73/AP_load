@@ -21,7 +21,7 @@ Reference tables live in ../reference and are versioned and dated. To score
 against a local formulary, copy that directory, edit the CSVs and pass
 --reference-dir. The configuration used is stamped into every output file.
 
-Stdlib only. Python 3.8+.
+Stdlib only. Python 3.8+. Formatted with black; type-annotated throughout.
 """
 
 import argparse
@@ -31,9 +31,15 @@ import os
 import re
 import sys
 from collections import Counter, OrderedDict
+from typing import Any, Dict, Iterable, List, Optional, Sequence, Tuple
 
-VERSION = "1.0.0"
-TABLE_VERSION = "2026-09"
+# One prescription row, as read from the input CSV (column name -> cell text).
+Row = Dict[str, Any]
+# (value, refusal_code_or_note): exactly one of the two is normally None.
+Result = Tuple[Optional[Any], Optional[str]]
+
+VERSION = "1.1.0"
+TABLE_VERSION = "2026-11"
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 DEFAULT_REFERENCE_DIR = os.path.join(os.path.dirname(HERE), "reference")
@@ -45,8 +51,13 @@ DEFAULT_REFERENCE_DIR = os.path.join(os.path.dirname(HERE), "reference")
 # Spanish, is in reference/ap_load2026_intervals.csv; this is the fallback used
 # if a local copy of the reference directory does not have that file.
 INTERVAL_DAYS = {
-    "weekly": 7.0, "2-weekly": 14.0, "4-weekly": 28.0,
-    "monthly": 28.0, "2-monthly": 56.0, "3-monthly": 84.0, "6-monthly": 168.0,
+    "weekly": 7.0,
+    "2-weekly": 14.0,
+    "4-weekly": 28.0,
+    "monthly": 28.0,
+    "2-monthly": 56.0,
+    "3-monthly": 84.0,
+    "6-monthly": 168.0,
 }
 
 # Refusal codes ------------------------------------------------------------
@@ -81,27 +92,39 @@ REFUSAL_HELP = {
 }
 
 
-class Tables(object):
-    def __init__(self, oral, lai, anchors, stems, source_dir, interval_days=None):
+class Tables:
+    """The reference tables, loaded once and passed to every scoring function."""
+
+    def __init__(
+        self,
+        oral: Dict[str, Dict[str, Any]],
+        lai: Dict[Tuple[str, str], Dict[str, Any]],
+        anchors: Dict[Tuple[str, str, str], float],
+        stems: Dict[str, list],
+        source_dir: str,
+        interval_days: Optional[Dict[str, float]] = None,
+    ) -> None:
         self.interval_days = dict(interval_days or INTERVAL_DAYS)
-        self.oral = oral            # generic -> dict
-        self.lai = lai              # (generic, interval) -> dict
-        self.anchors = anchors      # (scheme, sex, smoking) -> mg/day
-        self.molecule_stems = stems["molecule"]   # list of (pattern, generic, interval)
-        self.form_patterns = stems["form"]        # list of (compiled, form, interval)
+        self.oral = oral  # generic -> dict
+        self.lai = lai  # (generic, interval) -> dict
+        self.anchors = anchors  # (scheme, sex, smoking) -> mg/day
+        self.molecule_stems = stems["molecule"]  # list of (pattern, generic, interval)
+        self.form_patterns = stems["form"]  # list of (compiled, form, interval)
         self.brand_intervals = [(p, g, iv) for (p, g, iv) in stems["molecule"] if iv]
         # the same formulation vocabulary, extended to the end of the word, for
         # removing a schedule from a dose field: '/2meses' is matched by the
         # two-monthly pattern '2[ -]?mes' and the 'es' must go with it
-        self.form_eaters = [re.compile(p.pattern + r"[a-z]*", re.I)
-                            for (p, _f, _i) in stems["form"]]
+        self.form_eaters = [
+            re.compile(p.pattern + r"[a-z]*", re.I) for (p, _f, _i) in stems["form"]
+        ]
         self.dual_form = set(g for (g, _i) in lai)
         self.source_dir = source_dir
         # The same schedule under a second name: a depot filed as '4-weekly' is
         # found by 'monthly' and the reverse. Built only where it is unambiguous,
         # so a table that ever gives two different maxima for one schedule falls
         # back to exact-label matching rather than choosing between them.
-        by_days, clashes = {}, set()
+        by_days: Dict[Tuple[str, float], Dict[str, Any]] = {}
+        clashes = set()
         for (generic, interval), row in lai.items():
             days = self.interval_days.get(interval)
             if days is None:
@@ -114,13 +137,15 @@ class Tables(object):
             by_days.pop(key, None)
         self.lai_by_days = by_days
 
-    def days(self, interval):
+    def days(self, interval: Optional[str]) -> Optional[float]:
         """The schedule an interval label names, in days, or None if unrecognised."""
         if not interval:
             return None
         return self.interval_days.get(normalise_text(interval))
 
-    def lai_reference(self, generic, interval):
+    def lai_reference(
+        self, generic: str, interval: Optional[str]
+    ) -> Optional[Dict[str, Any]]:
         """Licensed maximum for this agent on this schedule, or None."""
         row = self.lai.get((generic, normalise_text(interval) if interval else ""))
         if row is None:
@@ -130,21 +155,26 @@ class Tables(object):
         return row
 
 
-def _f(value):
+def _f(value: Optional[str]) -> Optional[float]:
+    """A CSV cell as a float, or None if the cell is empty."""
     value = (value or "").strip()
     if value == "":
         return None
     return float(value)
 
 
-def load_tables(reference_dir=None):
+def load_tables(reference_dir: Optional[str] = None) -> Tables:
+    """Read every reference CSV from reference_dir (default: ../reference)."""
     d = reference_dir or DEFAULT_REFERENCE_DIR
     if not os.path.isdir(d):
         raise SystemExit("reference directory not found: %s" % d)
 
     oral = OrderedDict()
-    with open(os.path.join(d, "ap_load2026_reference_%s.csv" % TABLE_VERSION),
-              newline="", encoding="utf-8") as fh:
+    with open(
+        os.path.join(d, "ap_load2026_reference_%s.csv" % TABLE_VERSION),
+        newline="",
+        encoding="utf-8",
+    ) as fh:
         for row in csv.DictReader(fh):
             oral[row["generic"].strip().lower()] = {
                 "bnf_max": _f(row["bnf_max_mg_day"]),
@@ -155,18 +185,32 @@ def load_tables(reference_dir=None):
             }
 
     lai = OrderedDict()
-    with open(os.path.join(d, "ap_load2026_lai_%s.csv" % TABLE_VERSION),
-              newline="", encoding="utf-8") as fh:
+    with open(
+        os.path.join(d, "ap_load2026_lai_%s.csv" % TABLE_VERSION),
+        newline="",
+        encoding="utf-8",
+    ) as fh:
         for row in csv.DictReader(fh):
             key = (row["generic"].strip().lower(), row["interval"].strip().lower())
-            lai[key] = {"max": _f(row["max_per_interval_mg"]), "source": row["source"].strip()}
+            lai[key] = {
+                "max": _f(row["max_per_interval_mg"]),
+                "source": row["source"].strip(),
+            }
 
     anchors = {}
-    with open(os.path.join(d, "ap_load2026_clozapine_anchors.csv"),
-              newline="", encoding="utf-8") as fh:
+    with open(
+        os.path.join(d, "ap_load2026_clozapine_anchors.csv"),
+        newline="",
+        encoding="utf-8",
+    ) as fh:
         for row in csv.DictReader(fh):
-            anchors[(row["scheme"].strip().lower(), row["sex"].strip().lower(),
-                     row["smoking"].strip().lower())] = float(row["target_mg_day"])
+            anchors[
+                (
+                    row["scheme"].strip().lower(),
+                    row["sex"].strip().lower(),
+                    row["smoking"].strip().lower(),
+                )
+            ] = float(row["target_mg_day"])
 
     interval_days = dict(INTERVAL_DAYS)
     intervals_csv = os.path.join(d, "ap_load2026_intervals.csv")
@@ -178,34 +222,52 @@ def load_tables(reference_dir=None):
                     interval_days[label] = float(row["days"])
 
     molecule, form = [], []
-    with open(os.path.join(d, "ap_load2026_drug_stems.csv"),
-              newline="", encoding="utf-8") as fh:
+    with open(
+        os.path.join(d, "ap_load2026_drug_stems.csv"), newline="", encoding="utf-8"
+    ) as fh:
         for row in csv.DictReader(fh):
             kind = row["kind"].strip().lower()
             interval = (row["interval"] or "").strip().lower() or None
             if kind == "molecule":
-                molecule.append((row["pattern"].strip().lower(),
-                                 row["value"].strip().lower(), interval))
+                molecule.append(
+                    (
+                        row["pattern"].strip().lower(),
+                        row["value"].strip().lower(),
+                        interval,
+                    )
+                )
             elif kind == "form":
                 value = "LAI" if row["value"].strip().lower() == "lai" else "oral"
                 form.append((re.compile(row["pattern"].strip(), re.I), value, interval))
     # longest stem first: a short stem must never shadow a longer one
     molecule.sort(key=lambda t: -len(t[0]))
-    return Tables(oral, lai, anchors, {"molecule": molecule, "form": form}, d,
-                  interval_days)
+    return Tables(
+        oral, lai, anchors, {"molecule": molecule, "form": form}, d, interval_days
+    )
 
 
 # --- text handling --------------------------------------------------------
 
-def normalise_text(value):
+
+def normalise_text(value: Any) -> str:
+    """Lower case, accents removed, whitespace collapsed; None becomes ''."""
     s = "" if value is None else str(value)
     s = s.strip().lower()
-    for a, b in (("á", "a"), ("é", "e"), ("í", "i"), ("ó", "o"), ("ú", "u"), ("ñ", "n")):
+    for a, b in (
+        ("á", "a"),
+        ("é", "e"),
+        ("í", "i"),
+        ("ó", "o"),
+        ("ú", "u"),
+        ("ñ", "n"),
+    ):
         s = s.replace(a, b)
     return re.sub(r"\s+", " ", s)
 
 
-def match_molecule(raw, tables):
+def match_molecule(
+    raw: Any, tables: Tables
+) -> Tuple[Optional[str], Optional[str], Optional[str]]:
     """Prefix-anchored stem match. Returns (generic, stem, interval_hint).
 
     The molecule is matched at the start of the string, so amisulpride is never
@@ -226,7 +288,7 @@ def match_molecule(raw, tables):
     return None, None, None
 
 
-def match_form(tables, *texts):
+def match_form(tables: Tables, *texts: Any) -> Tuple[Optional[str], Optional[str]]:
     """Scan the whole string(s) for formulation and interval keywords."""
     form = interval = None
     joined = " ".join(normalise_text(t) for t in texts if t is not None)
@@ -246,22 +308,39 @@ FREQUENCY_RE = re.compile(
     r"\b(?:bd|b\.d|bid|b\.i\.d|tds|t\.d\.s|tid|t\.i\.d|qds|q\.d\.s|qid|q\.i\.d)\b"
     r"|\bq\s?\d+\s?h\b|\bcada\s+\d+\s*(?:h|horas?)\b|/\s*\d+\s*h\b"
     r"|\b(?:twice|three times|four times|dos veces|tres veces|cuatro veces)\b"
-    r"|\d+\s*[-+]\s*\d+\s*[-+]\s*\d+"          # 100-0-200, a three-slot regimen
-    r"|\b\d+\s*x\s*\d+|\b\d+\s*veces\b", re.I)
+    r"|\d+\s*[-+]\s*\d+\s*[-+]\s*\d+"  # 100-0-200, a three-slot regimen
+    r"|\b\d+\s*x\s*\d+|\b\d+\s*veces\b",
+    re.I,
+)
 
 # Units the parser accepts, and the factor that turns them into mg.
 DOSE_UNITS = {
-    "": 1.0, "mg": 1.0, "mgs": 1.0, "mg.": 1.0, "miligramos": 1.0, "milligrams": 1.0,
-    "milligram": 1.0, "g": 1000.0, "gr": 1000.0, "gramo": 1000.0, "gramos": 1000.0,
-    "gram": 1000.0, "grams": 1000.0,
-    "mcg": 0.001, "ug": 0.001, "microgram": 0.001, "micrograms": 0.001,
-    "microgramo": 0.001, "microgramos": 0.001, "mcgs": 0.001,
+    "": 1.0,
+    "mg": 1.0,
+    "mgs": 1.0,
+    "mg.": 1.0,
+    "miligramos": 1.0,
+    "milligrams": 1.0,
+    "milligram": 1.0,
+    "g": 1000.0,
+    "gr": 1000.0,
+    "gramo": 1000.0,
+    "gramos": 1000.0,
+    "gram": 1000.0,
+    "grams": 1000.0,
+    "mcg": 0.001,
+    "ug": 0.001,
+    "microgram": 0.001,
+    "micrograms": 0.001,
+    "microgramo": 0.001,
+    "microgramos": 0.001,
+    "mcgs": 0.001,
 }
 
 DOSE_RE = re.compile(r"^(\d+(?:\.\d+)?)\s*([a-z.]*)$")
 
 
-def strip_schedule_words(s, tables):
+def strip_schedule_words(s: str, tables: Optional[Tables]) -> str:
     """Remove formulation and interval vocabulary from a dose string.
 
     '450mg/d', '400 mg/mes' and '960/2meses' state a dose and a schedule in one
@@ -274,7 +353,7 @@ def strip_schedule_words(s, tables):
     return re.sub(r"\s+", " ", s).strip(" ,;:.-/")
 
 
-def parse_dose(value, tables=None):
+def parse_dose(value: Any, tables: Optional[Tables] = None) -> Result:
     """Return (mg, refusal_code).
 
     Accepts a plain number, optionally with a unit and a schedule: 300, '300mg',
@@ -285,7 +364,9 @@ def parse_dose(value, tables=None):
     if value is None:
         return None, NON_NUMERIC_DOSE
     if isinstance(value, (int, float)):
-        if value != value or value in (float("inf"), float("-inf")):   # NaN, inf
+        # A numeric cell that is not a number: NaN is how pandas and some CSV
+        # readers deliver an empty cell, and inf can arise from a division upstream.
+        if not math.isfinite(value):
             return None, NON_NUMERIC_DOSE
         return (float(value), None) if value > 0 else (None, DOSE_NOT_POSITIVE)
 
@@ -327,7 +408,7 @@ def parse_dose(value, tables=None):
 SEX_NUMERIC_NOTE = "numeric sex code read as 1 = male, 0 = female"
 
 
-def normalise_sex(value):
+def normalise_sex(value: Any) -> Tuple[Optional[str], Optional[str]]:
     """Return (sex, note). Numeric codes follow the convention 1 = male, 0 = female."""
     s = normalise_text(value)
     if s in ("m", "male", "man", "hombre", "varon", "h", "v"):
@@ -336,13 +417,14 @@ def normalise_sex(value):
         return "female", None
     if s in ("1", "1.0"):
         return "male", SEX_NUMERIC_NOTE
-    if s in ("0", "0.0", "2", "2.0"):
-        # 0 = female by the stated convention; 2 is refused as it has no agreed meaning
-        return ("female", SEX_NUMERIC_NOTE) if s in ("0", "0.0") else (None, None)
+    if s in ("0", "0.0"):
+        return "female", SEX_NUMERIC_NOTE
+    # Anything else is refused, including 2: some datasets code female as 2 and
+    # others use it for missing, so reading it either way would be a guess.
     return None, None
 
 
-def normalise_smoking(row):
+def normalise_smoking(row: Row) -> Tuple[Optional[float], Optional[str]]:
     """Return (smoker_fraction 0..1, note). Continuous where possible."""
     cigs = row.get("cigarettes_per_day")
     if cigs not in (None, ""):
@@ -352,16 +434,38 @@ def normalise_smoking(row):
         except ValueError:
             pass
     s = normalise_text(row.get("smoking_status"))
-    if s in ("1", "yes", "y", "smoker", "current", "current smoker", "fumador", "si", "true"):
+    if s in (
+        "1",
+        "yes",
+        "y",
+        "smoker",
+        "current",
+        "current smoker",
+        "fumador",
+        "si",
+        "true",
+    ):
         return 1.0, "binary smoking status: treated as fully induced"
-    if s in ("0", "no", "n", "non-smoker", "nonsmoker", "never", "no fumador", "nofumador", "false"):
+    if s in (
+        "0",
+        "no",
+        "n",
+        "non-smoker",
+        "nonsmoker",
+        "never",
+        "no fumador",
+        "nofumador",
+        "false",
+    ):
         return 0.0, "binary smoking status: treated as not induced"
     return None, None
 
 
 # --- scoring --------------------------------------------------------------
 
-def oral_reference(generic, tables):
+
+def oral_reference(generic: str, tables: Tables) -> Result:
+    """(reference mg/day, basis) for a non-clozapine oral agent, or (None, refusal)."""
     ref = tables.oral.get(generic)
     if ref is None:
         return None, NO_REFERENCE
@@ -377,21 +481,31 @@ def oral_reference(generic, tables):
     return None, NO_REFERENCE
 
 
-def clozapine_target(sex, smoke_fraction, scheme, tables):
+def clozapine_target(
+    sex: str, smoke_fraction: float, scheme: str, tables: Tables
+) -> float:
+    """Target dose interpolated between the non-smoker and smoker anchors."""
     ns = tables.anchors[(scheme, sex, "non-smoker")]
     sm = tables.anchors[(scheme, sex, "smoker")]
     return ns + (sm - ns) * smoke_fraction
 
 
-def score_row(row, tables, scheme):
+def score_row(row: Row, tables: Tables, scheme: str) -> Dict[str, Any]:
     """Score one prescription row. Returns a detail dict; 'score' is None if refused."""
     out = {
         "patient_id": row.get("patient_id"),
         "raw_drug": row.get("drug"),
         "raw_dose": row.get("dose"),
-        "generic": None, "stem": None, "form": None, "interval": None,
-        "dose_mg": None, "reference_mg": None, "basis": None,
-        "score": None, "refused": None, "note": None,
+        "generic": None,
+        "stem": None,
+        "form": None,
+        "interval": None,
+        "dose_mg": None,
+        "reference_mg": None,
+        "basis": None,
+        "score": None,
+        "refused": None,
+        "note": None,
     }
 
     generic, stem, stem_interval = match_molecule(row.get("drug"), tables)
@@ -401,14 +515,17 @@ def score_row(row, tables, scheme):
     out["generic"], out["stem"] = generic, stem
 
     dose, dose_problem = parse_dose(row.get("dose"), tables)
-    if dose_problem:
-        out["refused"] = dose_problem
+    if dose_problem or dose is None:
+        out["refused"] = dose_problem or NON_NUMERIC_DOSE
         return out
     out["dose_mg"] = dose
 
     # formulation: explicit route column wins, then brand stem, then free text
     route = normalise_text(row.get("route"))
-    text_form, text_interval = match_form(tables, row.get("drug"), row.get("dose"), row.get("interval"))
+    text_form, text_interval = match_form(
+        tables, row.get("drug"), row.get("dose"), row.get("interval")
+    )
+    form: Optional[str]
     if route in ("oral", "po", "tablet", "capsule", "liquid", "oral liquid", "vo"):
         form = "oral"
     elif route in ("lai", "depot", "im", "injection", "inyectable", "depot injection"):
@@ -417,7 +534,9 @@ def score_row(row, tables, scheme):
         form = "LAI"
     else:
         form = text_form
-    interval = (normalise_text(row.get("interval")) or None) or stem_interval or text_interval
+    interval: Optional[str] = (
+        (normalise_text(row.get("interval")) or None) or stem_interval or text_interval
+    )
     if interval and tables.days(interval) is None:
         # an interval that names no recognised schedule ('every so often') falls
         # back to one that does, if the drug name or the free text gave one
@@ -440,7 +559,10 @@ def score_row(row, tables, scheme):
         if ref is None or ref["max"] is None:
             out["refused"] = LAI_NOT_IN_TABLE
             return out
-        out["reference_mg"], out["basis"] = ref["max"], "licensed formulation maximum per %s" % interval
+        out["reference_mg"], out["basis"] = (
+            ref["max"],
+            "licensed formulation maximum per %s" % interval,
+        )
         out["score"] = dose / ref["max"] * 100.0
         return out
 
@@ -455,7 +577,10 @@ def score_row(row, tables, scheme):
             return out
         target = clozapine_target(sex, frac, scheme, tables)
         out["reference_mg"] = target
-        out["basis"] = "individualised clozapine target (%s anchors, %s)" % (scheme, sex)
+        out["basis"] = "individualised clozapine target (%s anchors, %s)" % (
+            scheme,
+            sex,
+        )
         out["note"] = "; ".join(n for n in (sex_note, smoke_note) if n) or None
         out["score"] = dose / target * 100.0
         return out
@@ -469,9 +594,15 @@ def score_row(row, tables, scheme):
     return out
 
 
-def score(rows, tables, scheme="rostami"):
-    details, order = [], []
-    totals, scored_n, refused_n = {}, Counter(), Counter()
+def score(
+    rows: Iterable[Row], tables: Tables, scheme: str = "rostami"
+) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]], Dict[str, Any]]:
+    """Score every row; return (one row per patient, one row per drug, run report)."""
+    details: List[Dict[str, Any]] = []
+    order: List[Any] = []
+    totals: Dict[Any, float] = {}
+    scored_n: "Counter[Any]" = Counter()
+    refused_n: "Counter[Any]" = Counter()
     for row in rows:
         d = score_row(row, tables, scheme)
         if d["reference_mg"] is not None:
@@ -489,48 +620,77 @@ def score(rows, tables, scheme="rostami"):
             totals[pid] += d["score"]
             scored_n[pid] += 1
 
-    patients = []
+    patients: List[Dict[str, Any]] = []
     for pid in order:
-        patients.append(OrderedDict([
-            ("patient_id", pid),
-            ("AP_Load2026", None if scored_n[pid] == 0 else round(totals[pid], 1)),
-            ("drugs_scored", scored_n[pid]),
-            ("rows_refused", refused_n[pid]),
-            ("complete", "yes" if refused_n[pid] == 0 else "NO"),
-            ("clozapine_anchors", scheme),
-            ("reference_table", TABLE_VERSION),
-        ]))
+        patients.append(
+            OrderedDict(
+                [
+                    ("patient_id", pid),
+                    (
+                        "AP_Load2026",
+                        None if scored_n[pid] == 0 else round(totals[pid], 1),
+                    ),
+                    ("drugs_scored", scored_n[pid]),
+                    ("rows_refused", refused_n[pid]),
+                    ("complete", "yes" if refused_n[pid] == 0 else "NO"),
+                    ("clozapine_anchors", scheme),
+                    ("reference_table", TABLE_VERSION),
+                ]
+            )
+        )
 
-    report = OrderedDict([
-        ("ap_load2026_version", VERSION),
-        ("reference_table", TABLE_VERSION),
-        ("reference_dir", tables.source_dir),
-        ("clozapine_anchors", scheme),
-        ("patients", len(order)),
-        ("patients_complete", sum(1 for p in patients if p["complete"] == "yes")),
-        ("drug_rows", len(details)),
-        ("drug_rows_scored", sum(1 for d in details if d["score"] is not None)),
-        ("drug_rows_refused", sum(1 for d in details if d["score"] is None)),
-        ("refusals_by_reason", Counter(d["refused"] for d in details if d["refused"])),
-        ("unmatched_names", Counter(str(d["raw_drug"]) for d in details
-                                    if d["refused"] == UNMATCHED_DRUG)),
-    ])
+    report: Dict[str, Any] = OrderedDict(
+        [
+            ("ap_load2026_version", VERSION),
+            ("reference_table", TABLE_VERSION),
+            ("reference_dir", tables.source_dir),
+            ("clozapine_anchors", scheme),
+            ("patients", len(order)),
+            ("patients_complete", sum(1 for p in patients if p["complete"] == "yes")),
+            ("drug_rows", len(details)),
+            ("drug_rows_scored", sum(1 for d in details if d["score"] is not None)),
+            ("drug_rows_refused", sum(1 for d in details if d["score"] is None)),
+            (
+                "refusals_by_reason",
+                Counter(d["refused"] for d in details if d["refused"]),
+            ),
+            (
+                "unmatched_names",
+                Counter(
+                    str(d["raw_drug"])
+                    for d in details
+                    if d["refused"] == UNMATCHED_DRUG
+                ),
+            ),
+        ]
+    )
     return patients, details, report
 
 
-def format_report(report):
-    lines = ["AP_Load2026 %s   reference table %s   clozapine anchors: %s"
-             % (report["ap_load2026_version"], report["reference_table"], report["clozapine_anchors"]),
-             "reference directory: %s" % report["reference_dir"],
-             "patients: %d (%d complete, %d with at least one refused row)"
-             % (report["patients"], report["patients_complete"],
-                report["patients"] - report["patients_complete"]),
-             "drug rows: %d scored, %d refused"
-             % (report["drug_rows_scored"], report["drug_rows_refused"])]
+def format_report(report: Dict[str, Any]) -> str:
+    lines = [
+        "AP_Load2026 %s   reference table %s   clozapine anchors: %s"
+        % (
+            report["ap_load2026_version"],
+            report["reference_table"],
+            report["clozapine_anchors"],
+        ),
+        "reference directory: %s" % report["reference_dir"],
+        "patients: %d (%d complete, %d with at least one refused row)"
+        % (
+            report["patients"],
+            report["patients_complete"],
+            report["patients"] - report["patients_complete"],
+        ),
+        "drug rows: %d scored, %d refused"
+        % (report["drug_rows_scored"], report["drug_rows_refused"]),
+    ]
     if report["refusals_by_reason"]:
         lines.append("refusals:")
         for reason, n in report["refusals_by_reason"].most_common():
-            lines.append("   %-34s %4d   %s" % (reason, n, REFUSAL_HELP.get(reason, "")))
+            lines.append(
+                "   %-34s %4d   %s" % (reason, n, REFUSAL_HELP.get(reason, ""))
+            )
     if report["unmatched_names"]:
         lines.append("unmatched drug names:")
         for name, n in report["unmatched_names"].most_common():
@@ -538,14 +698,35 @@ def format_report(report):
     return "\n".join(lines)
 
 
-PATIENT_FIELDS = ["patient_id", "AP_Load2026", "drugs_scored", "rows_refused",
-                  "complete", "clozapine_anchors", "reference_table"]
-DETAIL_FIELDS = ["patient_id", "raw_drug", "raw_dose", "generic", "stem", "form",
-                 "interval", "dose_mg", "reference_mg", "basis", "score",
-                 "refused", "note"]
+PATIENT_FIELDS = [
+    "patient_id",
+    "AP_Load2026",
+    "drugs_scored",
+    "rows_refused",
+    "complete",
+    "clozapine_anchors",
+    "reference_table",
+]
+DETAIL_FIELDS = [
+    "patient_id",
+    "raw_drug",
+    "raw_dose",
+    "generic",
+    "stem",
+    "form",
+    "interval",
+    "dose_mg",
+    "reference_mg",
+    "basis",
+    "score",
+    "refused",
+    "note",
+]
 
 
-def write_csv(path, rows, fieldnames=None):
+def write_csv(
+    path: str, rows: Sequence[Dict[str, Any]], fieldnames: Optional[List[str]] = None
+) -> None:
     """Write a CSV, header included even when there are no rows.
 
     An empty file is a result: 'nothing was refused' must be distinguishable from
@@ -562,14 +743,22 @@ def write_csv(path, rows, fieldnames=None):
             w.writerow(r)
 
 
-def main(argv=None):
-    ap = argparse.ArgumentParser(description="Compute AP_Load2026 from a long-format prescription file.")
+def main(argv: Optional[List[str]] = None) -> int:
+    ap = argparse.ArgumentParser(
+        description="Compute AP_Load2026 from a long-format prescription file."
+    )
     ap.add_argument("input_csv")
     ap.add_argument("output_csv")
-    ap.add_argument("--detail-csv", default=None, help="per-drug scoring detail (recommended)")
-    ap.add_argument("--review-csv", default=None, help="refused rows only, for manual correction")
+    ap.add_argument(
+        "--detail-csv", default=None, help="per-drug scoring detail (recommended)"
+    )
+    ap.add_argument(
+        "--review-csv", default=None, help="refused rows only, for manual correction"
+    )
     ap.add_argument("--anchors", choices=["rostami", "reeves"], default="rostami")
-    ap.add_argument("--reference-dir", default=None, help="a local copy of the reference tables")
+    ap.add_argument(
+        "--reference-dir", default=None, help="a local copy of the reference tables"
+    )
     args = ap.parse_args(argv)
 
     tables = load_tables(args.reference_dir)
@@ -582,7 +771,9 @@ def main(argv=None):
     if args.detail_csv:
         write_csv(args.detail_csv, details, DETAIL_FIELDS)
     if args.review_csv:
-        write_csv(args.review_csv, [d for d in details if d["score"] is None], DETAIL_FIELDS)
+        write_csv(
+            args.review_csv, [d for d in details if d["score"] is None], DETAIL_FIELDS
+        )
     print(format_report(report))
     return 0
 

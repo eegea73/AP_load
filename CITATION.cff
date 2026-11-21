@@ -8,10 +8,11 @@ abstract: >-
   percentage of a documented reference dose, summed across agents without an
   upper cap. Includes the complete dated reference tables.
 type: software
-version: "1.0.0"
-date-released: "2026-09-18"
+version: "1.1.0"
+date-released: "2026-11-21"
 license: MIT
-repository-code: "https://github.com/[account to be inserted]/APLoad2026"
+repository-code: "https://github.com/eegea73/AP_load"
+url: "https://www.schizophrenias.group/ap_load"
 # doi: 10.5281/zenodo.[to be inserted on release]
 keywords:
   - schizophrenia

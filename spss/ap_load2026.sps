@@ -4,7 +4,7 @@
 * Fernandez-Egea E, Krishnadas R, Jenkins C, Patel R, Cardinal RN, Wolpe N (2026).
 * The Antipsychotic Dose Load (AP_Load2026): a normalised prescribed-dose index
 * for schizophrenia research. [citation to be completed on acceptance].
-* Reference table 2026-09. GENERATED FILE - do not edit by hand.
+* Reference table 2026-11. GENERATED FILE - do not edit by hand.
 * Regenerate with:  python3 build/generate_spss.py
 * ----------------------------------------------------------------------------.
 *
@@ -437,11 +437,11 @@ DO IF (apl_flag = 0 AND apl_form = 'oral' AND apl_gen <> 'clozapine').
 +    COMPUTE apl_ref = 24.000000.
 +    COMPUTE apl_basis = 'label maximum (no WHO DDD)'.
 +  ELSE IF (apl_gen = 'brexpiprazole').
-+    COMPUTE apl_ref = 4.000000.
-+    COMPUTE apl_basis = 'label maximum (no WHO DDD)'.
++    COMPUTE apl_ref = 3.464102.
++    COMPUTE apl_basis = 'geometric mean'.
 +  ELSE IF (apl_gen = 'cariprazine').
-+    COMPUTE apl_ref = 6.000000.
-+    COMPUTE apl_basis = 'label maximum (no WHO DDD)'.
++    COMPUTE apl_ref = 4.242641.
++    COMPUTE apl_basis = 'geometric mean'.
 +  ELSE IF (apl_gen = 'chlorpromazine').
 +    COMPUTE apl_ref = 450.000000.
 +    COMPUTE apl_basis = 'capped geometric mean'.
@@ -452,8 +452,8 @@ DO IF (apl_flag = 0 AND apl_form = 'oral' AND apl_gen <> 'clozapine').
 +    COMPUTE apl_ref = 12.000000.
 +    COMPUTE apl_basis = 'capped geometric mean'.
 +  ELSE IF (apl_gen = 'iloperidone').
-+    COMPUTE apl_ref = 24.000000.
-+    COMPUTE apl_basis = 'label maximum (no WHO DDD)'.
++    COMPUTE apl_ref = 20.784610.
++    COMPUTE apl_basis = 'geometric mean'.
 +  ELSE IF (apl_gen = 'lumateperone').
 +    COMPUTE apl_ref = 42.000000.
 +    COMPUTE apl_basis = 'label maximum (no WHO DDD)'.
@@ -580,9 +580,9 @@ DATASET ACTIVATE apl_scores.
 STRING complete (A3) reference_table (A8).
 COMPUTE complete = 'yes'.
 IF (rows_refused > 0) complete = 'NO'.
-COMPUTE reference_table = '2026-09'.
+COMPUTE reference_table = '2026-11'.
 VARIABLE LABELS
-  AP_Load2026 'Antipsychotic Dose Load (pct), reference table 2026-09'
+  AP_Load2026 'Antipsychotic Dose Load (pct), reference table 2026-11'
   rows_refused 'prescriptions that could not be scored'
   complete 'no prescription refused for this patient'.
 EXECUTE.

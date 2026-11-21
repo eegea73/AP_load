@@ -16,26 +16,29 @@ import csv
 import math
 import os
 from collections import OrderedDict
+from typing import Dict, List, Optional, Tuple
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
 REF = os.path.join(ROOT, "reference")
 OUT = os.path.join(ROOT, "spss", "ap_load2026.sps")
-TABLE_VERSION = "2026-09"
+TABLE_VERSION = "2026-11"
 SLOTS = 4
 
 
-def read(name):
+def read(name: str) -> List[Dict[str, str]]:
     with open(os.path.join(REF, name), newline="", encoding="utf-8") as fh:
         return list(csv.DictReader(fh))
 
 
-def num(v):
+def num(v: Optional[str]) -> Optional[float]:
     v = (v or "").strip()
     return float(v) if v else None
 
 
-def oral_reference(bnf, ddd):
+def oral_reference(
+    bnf: Optional[float], ddd: Optional[float]
+) -> Tuple[Optional[float], Optional[str]]:
     if bnf is not None and ddd is not None:
         gm, cap = math.sqrt(bnf * ddd), 1.5 * ddd
         return (min(gm, cap), "capped geometric mean" if gm > cap else "geometric mean")
@@ -46,7 +49,7 @@ def oral_reference(bnf, ddd):
     return None, None
 
 
-def render():
+def render() -> str:
     """Build the whole .sps as text, so a test can check the committed file."""
     oral_rows = read("ap_load2026_reference_%s.csv" % TABLE_VERSION)
     lai_rows = read("ap_load2026_lai_%s.csv" % TABLE_VERSION)
@@ -62,26 +65,50 @@ def render():
         if ref is not None:
             oral[g] = (ref, basis)
 
-    lai = [(r["generic"].strip().lower(), r["interval"].strip().lower(),
-            num(r["max_per_interval_mg"])) for r in lai_rows]
-    lai = [x for x in lai if x[2] is not None]
+    lai_all = [
+        (
+            r["generic"].strip().lower(),
+            r["interval"].strip().lower(),
+            num(r["max_per_interval_mg"]),
+        )
+        for r in lai_rows
+    ]
+    lai: List[Tuple[str, str, float]] = [x for x in lai_all if x[2] is not None]  # type: ignore[misc]
     dual = sorted(set(g for g, _i, _m in lai))
 
     anchors = {}
     for r in anchor_rows:
-        anchors[(r["scheme"].strip().lower(), r["sex"].strip().lower(),
-                 r["smoking"].strip().lower())] = float(r["target_mg_day"])
+        anchors[
+            (
+                r["scheme"].strip().lower(),
+                r["sex"].strip().lower(),
+                r["smoking"].strip().lower(),
+            )
+        ] = float(r["target_mg_day"])
 
-    stems = [(r["pattern"].strip().lower(), r["value"].strip().lower(),
-              (r["interval"] or "").strip().lower())
-             for r in stem_rows if r["kind"].strip().lower() == "molecule"]
+    stems = [
+        (
+            r["pattern"].strip().lower(),
+            r["value"].strip().lower(),
+            (r["interval"] or "").strip().lower(),
+        )
+        for r in stem_rows
+        if r["kind"].strip().lower() == "molecule"
+    ]
     stems.sort(key=lambda t: -len(t[0]))
 
     # interval vocabulary: label -> days. Labels naming the same schedule share a
     # number, which is what the depot table is looked up under, so 'monthly' and
     # '4-weekly' find the same row.
-    interval_days = {"weekly": 7.0, "2-weekly": 14.0, "4-weekly": 28.0, "monthly": 28.0,
-                     "2-monthly": 56.0, "3-monthly": 84.0, "6-monthly": 168.0}
+    interval_days = {
+        "weekly": 7.0,
+        "2-weekly": 14.0,
+        "4-weekly": 28.0,
+        "monthly": 28.0,
+        "2-monthly": 56.0,
+        "3-monthly": 84.0,
+        "6-monthly": 168.0,
+    }
     iv_path = os.path.join(REF, "ap_load2026_intervals.csv")
     if os.path.isfile(iv_path):
         for r in read("ap_load2026_intervals.csv"):
@@ -91,7 +118,8 @@ def render():
 
     # (generic, days) -> maximum, where the table gives only one maximum for that
     # schedule; anything ambiguous stays on exact-label matching
-    lai_by_days, clashes = OrderedDict(), set()
+    lai_by_days: "OrderedDict[Tuple[str, float], Tuple[float, str]]" = OrderedDict()
+    clashes = set()
     for generic, interval, mx in lai:
         days = interval_days.get(interval)
         if days is None:
@@ -103,32 +131,50 @@ def render():
     for key in clashes:
         lai_by_days.pop(key, None)
 
-    L = []
+    L: List[str] = []
     w = L.append
 
     w("* Encoding: UTF-8.")
     w("*" + " " + "-" * 76 + ".")
     w("* AP_Load2026 - the Antipsychotic Dose Load.")
-    w("* Fernandez-Egea E, Krishnadas R, Jenkins C, Patel R, Cardinal RN, Wolpe N (2026).")
+    w(
+        "* Fernandez-Egea E, Krishnadas R, Jenkins C, Patel R, Cardinal RN, Wolpe N (2026)."
+    )
     w("* The Antipsychotic Dose Load (AP_Load2026): a normalised prescribed-dose index")
     w("* for schizophrenia research. [citation to be completed on acceptance].")
     w("* Reference table %s. GENERATED FILE - do not edit by hand." % TABLE_VERSION)
     w("* Regenerate with:  python3 build/generate_spss.py")
     w("*" + " " + "-" * 76 + ".")
     w("*")
-    w("* Expects one row per PATIENT (wide), with up to %d antipsychotic slots:" % SLOTS)
+    w(
+        "* Expects one row per PATIENT (wide), with up to %d antipsychotic slots:"
+        % SLOTS
+    )
     w("*")
     w("*   patient_id   any type")
     w("*   sex          NUMERIC, 1 = male, 0 = female")
     w("*   cigs_per_day NUMERIC, cigarettes per day (0 for a non-smoker)")
-    w("*   AP_1 .. AP_%d          STRING, drug name (generic or brand, English or Spanish)" % SLOTS)
-    w("*   AP_1_dose .. AP_%d_dose      NUMERIC, mg per day (oral) or mg per interval (depot)" % SLOTS)
+    w(
+        "*   AP_1 .. AP_%d          STRING, drug name (generic or brand, English or Spanish)"
+        % SLOTS
+    )
+    w(
+        "*   AP_1_dose .. AP_%d_dose      NUMERIC, mg per day (oral) or mg per interval (depot)"
+        % SLOTS
+    )
     w("*   AP_1_route .. AP_%d_route    STRING, 'oral' or 'LAI'   (optional)" % SLOTS)
-    w("*   AP_1_interval .. AP_%d_interval  STRING, e.g. 'monthly' (depots only)" % SLOTS)
+    w(
+        "*   AP_1_interval .. AP_%d_interval  STRING, e.g. 'monthly' (depots only)"
+        % SLOTS
+    )
     w("*")
     w("* Unlike the Python and R implementations, this syntax does NOT read free text")
-    w("* doses. Doses must already be numeric. Anything that cannot be resolved without")
-    w("* guessing is flagged in apl_flag and left out of the score - never scored as 0.")
+    w(
+        "* doses. Doses must already be numeric. Anything that cannot be resolved without"
+    )
+    w(
+        "* guessing is flagged in apl_flag and left out of the score - never scored as 0."
+    )
     w("*")
     w("* apl_flag:  0 scored   1 drug not recognised   2 dose missing or not numeric")
     w("*            3 oral or depot could not be told apart   4 depot interval missing")
@@ -137,21 +183,35 @@ def render():
     w("*")
     w("* If your data has no route/interval columns, create empty ones first:")
     w("*   STRING %s (A8)" % " ".join("AP_%d_route" % i for i in range(1, SLOTS + 1)))
-    w("*          %s (A12)." % " ".join("AP_%d_interval" % i for i in range(1, SLOTS + 1)))
+    w(
+        "*          %s (A12)."
+        % " ".join("AP_%d_interval" % i for i in range(1, SLOTS + 1))
+    )
     w("* An oral-only agent (clozapine, quetiapine, amisulpride) then still scores;")
     w("* an agent with both forms is flagged rather than guessed.")
     w("*" + " " + "-" * 76 + ".")
     w("")
-    w("* ---- 1. restructure the slots to one row per prescription --------------------.")
+    w(
+        "* ---- 1. restructure the slots to one row per prescription --------------------."
+    )
     w("")
     w("DATASET COPY apl_work.")
     w("DATASET ACTIVATE apl_work.")
     w("")
     w("VARSTOCASES")
     w("  /MAKE apl_drug FROM %s" % " ".join("AP_%d" % i for i in range(1, SLOTS + 1)))
-    w("  /MAKE apl_dose FROM %s" % " ".join("AP_%d_dose" % i for i in range(1, SLOTS + 1)))
-    w("  /MAKE apl_route FROM %s" % " ".join("AP_%d_route" % i for i in range(1, SLOTS + 1)))
-    w("  /MAKE apl_interval FROM %s" % " ".join("AP_%d_interval" % i for i in range(1, SLOTS + 1)))
+    w(
+        "  /MAKE apl_dose FROM %s"
+        % " ".join("AP_%d_dose" % i for i in range(1, SLOTS + 1))
+    )
+    w(
+        "  /MAKE apl_route FROM %s"
+        % " ".join("AP_%d_route" % i for i in range(1, SLOTS + 1))
+    )
+    w(
+        "  /MAKE apl_interval FROM %s"
+        % " ".join("AP_%d_interval" % i for i in range(1, SLOTS + 1))
+    )
     w("  /INDEX = apl_slot")
     w("  /KEEP = patient_id sex cigs_per_day")
     w("  /NULL = DROP.")
@@ -166,7 +226,9 @@ def render():
     w("COMPUTE apl_form = LOWER(LTRIM(RTRIM(apl_route))).")
     w("COMPUTE apl_int = LOWER(LTRIM(RTRIM(apl_interval))).")
     w("")
-    w("* ---- 2. drug names, matched on stems anchored at the start of the string -----.")
+    w(
+        "* ---- 2. drug names, matched on stems anchored at the start of the string -----."
+    )
     w("* Longest stem first, so a short stem can never shadow a longer one.")
     w("* Matching is by prefix, NOT by INDEX(): INDEX() would read amisulpride as")
     w("* sulpiride. To support another country, add a branch here and to the CSV.")
@@ -186,14 +248,18 @@ def render():
     w("+  COMPUTE apl_flag = 1.")
     w("END IF.")
     w("")
-    w("* ---- 3. dose, formulation and sex --------------------------------------------.")
+    w(
+        "* ---- 3. dose, formulation and sex --------------------------------------------."
+    )
     w("")
     w("IF (apl_flag = 0 AND MISSING(apl_dose)) apl_flag = 2.")
     w("IF (apl_flag = 0 AND apl_dose <= 0) apl_flag = 2.")
     w("")
     w("* an explicit route wins; a depot brand has already set one above.")
     w("IF (apl_form = 'po' OR apl_form = 'oral') apl_form = 'oral'.")
-    w("IF (apl_form = 'im' OR apl_form = 'depot' OR apl_form = 'lai') apl_form = 'lai'.")
+    w(
+        "IF (apl_form = 'im' OR apl_form = 'depot' OR apl_form = 'lai') apl_form = 'lai'."
+    )
     w("")
     w("* an agent with both an oral and a depot form cannot be scored without a route.")
     w("DO IF (apl_flag = 0 AND apl_form <> 'oral' AND apl_form <> 'lai').")
@@ -205,9 +271,13 @@ def render():
     w("+  END IF.")
     w("END IF.")
     w("")
-    w("IF (apl_flag = 0 AND apl_form = 'lai' AND LTRIM(RTRIM(apl_int)) = '') apl_flag = 4.")
+    w(
+        "IF (apl_flag = 0 AND apl_form = 'lai' AND LTRIM(RTRIM(apl_int)) = '') apl_flag = 4."
+    )
     w("")
-    w("* ---- 3b. the dosing schedule, in days -----------------------------------------.")
+    w(
+        "* ---- 3b. the dosing schedule, in days -----------------------------------------."
+    )
     w("* 'monthly' and '4-weekly' name one schedule, and a prescriber may write")
     w("* either; the depot table below is looked up on the number of days, so both")
     w("* find the same row. The vocabulary is reference/ap_load2026_intervals.csv -")
@@ -219,7 +289,9 @@ def render():
         w("IF (apl_int = '%s') apl_days = %g." % (label, interval_days[label]))
     w("IF (apl_flag = 0 AND apl_form = 'lai' AND MISSING(apl_days)) apl_flag = 4.")
     w("")
-    w("* ---- 4. reference doses ------------------------------------------------------.")
+    w(
+        "* ---- 4. reference doses ------------------------------------------------------."
+    )
     w("")
     w("* 4a. clozapine: target individualised for sex and cigarettes per day.")
     ros_m_ns = anchors[("rostami", "male", "non-smoker")]
@@ -227,9 +299,15 @@ def render():
     ros_f_ns = anchors[("rostami", "female", "non-smoker")]
     ros_f_s = anchors[("rostami", "female", "smoker")]
     w("* Rostami-Hodjegan-derived anchors (the reference configuration).")
-    w("* For the Reeves-derived configuration substitute: male %g/%g, female %g/%g."
-      % (anchors[("reeves", "male", "non-smoker")], anchors[("reeves", "male", "smoker")],
-         anchors[("reeves", "female", "non-smoker")], anchors[("reeves", "female", "smoker")]))
+    w(
+        "* For the Reeves-derived configuration substitute: male %g/%g, female %g/%g."
+        % (
+            anchors[("reeves", "male", "non-smoker")],
+            anchors[("reeves", "male", "smoker")],
+            anchors[("reeves", "female", "non-smoker")],
+            anchors[("reeves", "female", "smoker")],
+        )
+    )
     w("DO IF (apl_flag = 0 AND apl_gen = 'clozapine').")
     w("+  DO IF (MISSING(sex) OR (sex <> 0 AND sex <> 1)).")
     w("+    COMPUTE apl_flag = 5.")
@@ -238,10 +316,16 @@ def render():
     w("+  ELSE.")
     w("+    COMPUTE apl_frac = MIN(1, MAX(0, cigs_per_day / 10)).")
     w("+    DO IF (sex = 1).")
-    w("+      COMPUTE apl_ref = %g + (%g - %g) * apl_frac." % (ros_m_ns, ros_m_s, ros_m_ns))
+    w(
+        "+      COMPUTE apl_ref = %g + (%g - %g) * apl_frac."
+        % (ros_m_ns, ros_m_s, ros_m_ns)
+    )
     w("+      COMPUTE apl_basis = 'individualised clozapine target (male)'.")
     w("+    ELSE.")
-    w("+      COMPUTE apl_ref = %g + (%g - %g) * apl_frac." % (ros_f_ns, ros_f_s, ros_f_ns))
+    w(
+        "+      COMPUTE apl_ref = %g + (%g - %g) * apl_frac."
+        % (ros_f_ns, ros_f_s, ros_f_ns)
+    )
     w("+      COMPUTE apl_basis = 'individualised clozapine target (female)'.")
     w("+    END IF.")
     w("+  END IF.")
@@ -286,7 +370,9 @@ def render():
     w("+  END IF.")
     w("END IF.")
     w("")
-    w("* ---- 5. score ----------------------------------------------------------------.")
+    w(
+        "* ---- 5. score ----------------------------------------------------------------."
+    )
     w("")
     w("IF (apl_flag = 0 AND apl_ref > 0) apl_score = apl_dose / apl_ref * 100.")
     w("IF (apl_flag <> 0) apl_score = $SYSMIS.")
@@ -302,10 +388,14 @@ def render():
     w("  apl_flag 'AP_Load2026: 0 = scored, >0 = refused (see header)'.")
     w("VALUE LABELS apl_flag")
     w("  0 'scored' 1 'drug not recognised' 2 'dose missing or not numeric'")
-    w("  3 'oral or depot could not be told apart' 4 'depot interval missing or not tabulated'")
+    w(
+        "  3 'oral or depot could not be told apart' 4 'depot interval missing or not tabulated'"
+    )
     w("  5 'sex missing (clozapine)' 6 'smoking missing (clozapine)'.")
     w("")
-    w("* ---- 6. back to one row per patient ------------------------------------------.")
+    w(
+        "* ---- 6. back to one row per patient ------------------------------------------."
+    )
     w("")
     w("DATASET DECLARE apl_scores.")
     w("AGGREGATE OUTFILE = apl_scores")
@@ -319,7 +409,10 @@ def render():
     w("IF (rows_refused > 0) complete = 'NO'.")
     w("COMPUTE reference_table = '%s'." % TABLE_VERSION)
     w("VARIABLE LABELS")
-    w("  AP_Load2026 'Antipsychotic Dose Load (pct), reference table %s'" % TABLE_VERSION)
+    w(
+        "  AP_Load2026 'Antipsychotic Dose Load (pct), reference table %s'"
+        % TABLE_VERSION
+    )
     w("  rows_refused 'prescriptions that could not be scored'")
     w("  complete 'no prescription refused for this patient'.")
     w("EXECUTE.")
@@ -338,7 +431,7 @@ def render():
     return "\n".join(L)
 
 
-def main():
+def main() -> None:
     text = render()
     os.makedirs(os.path.dirname(OUT), exist_ok=True)
     with open(OUT, "w", encoding="utf-8") as fh:
