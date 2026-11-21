@@ -36,6 +36,7 @@ authors:
     affiliation: "Department of Psychiatry, University of Cambridge, and Cambridgeshire and Peterborough NHS Foundation Trust, UK"
   - family-names: "Cardinal"
     given-names: "Rudolf N."
+    orcid: "https://orcid.org/0000-0002-8751-5167"
     affiliation: "Department of Psychiatry, University of Cambridge, and Cambridgeshire and Peterborough NHS Foundation Trust, UK"
   - family-names: "Wolpe"
     given-names: "Noham"
@@ -56,6 +57,7 @@ preferred-citation:
       given-names: "Rashmi"
     - family-names: "Cardinal"
       given-names: "Rudolf N."
+      orcid: "https://orcid.org/0000-0002-8751-5167"
     - family-names: "Wolpe"
       given-names: "Noham"
   # journal, volume, pages and doi to be completed on acceptance
